@@ -8,7 +8,7 @@ auth_bp = Blueprint('auth', __name__)  # Define the Blueprint
 @auth_bp.route('/')
 def home():
     session.clear()
-    return render_template('landingpage.html', user=session.get('user'))
+    return render_template('landing_page.html', user=session.get('user'))
 
 # ----------------------------------- AUTHENTICATION ------------------------------------------------
 
@@ -27,14 +27,14 @@ def register():
 
         if User.query.filter_by(email=email).first():
             error_message = "Email already exists."
-            return render_template('SignUp.html', error=error_message)
+            return render_template('sign_up.html', error=error_message)
 
         new_user = User(age=age, name=name, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
         return redirect(url_for('auth.login'))
 
-    return render_template('SignUp.html')
+    return render_template('sign_up.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -69,7 +69,7 @@ def dashboard():
 
     first_name,initials = get_initials(full_name)
 
-    return render_template("Dashboard.html",
+    return render_template("dashboard.html",
                            full_name=full_name, 
                            first_name=first_name, 
                            initials=initials,
@@ -112,7 +112,7 @@ def forgot_password():
         
     return render_template('forgot_password.html')
 
-@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+@auth_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     email = reset_tokens.get(token)
     if not email:
@@ -289,7 +289,7 @@ def ml_game():
     module_accuracy = "N/A" 
 
     return render_template(
-        "ML_game.html", 
+        "ml_game.html", 
         user=session.get('user'), 
         lessons=user_lessons_with_status,
         module_progress_percent=module_progress_percent,
@@ -330,7 +330,7 @@ def video_learning():
     module_progress_percent = (completed_lessons_count / total_lessons_count) * 100 if total_lessons_count > 0 else 0
 
     return render_template(
-        "videolearning.html", 
+        "video_learning.html", 
         user=session.get('user'), 
         lessons=user_lessons_with_status,
         module_progress_percent=module_progress_percent,
@@ -383,7 +383,7 @@ def gamepage():
     print(f"DEBUG: Lessons being passed to template: {user_lessons_with_status}")
     session.pop('questions_asked', None) 
     return render_template(
-        "gamepage.html", 
+        "game_page.html", 
         user=session.get('user'), 
         lessons=user_lessons_with_status,
         module_progress_percent=module_progress_percent, # For the main module progress bar
