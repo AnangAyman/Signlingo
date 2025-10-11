@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium - SignLingo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/premium_style.css">
+    <link rel="stylesheet" href="static/css/global_style.css">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="/dashboard">SignLingo</a>
+        </div>
+        <div class="sidebar-menu">
+            <a class="sidebar-link" href="/dashboard">
+                <i class="fas fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="sidebar-link" href="/course">
+                <i class="fas fa-book"></i>
+                <span>Courses</span>
+            </a>
+            <!-- <a class="sidebar-link" href="/daily-quiz">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Daily Quiz</span>
+            </a> -->
+            <a class="sidebar-link" href="/leaderboard">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a class="sidebar-link" href="/shop">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Shop</span>
+            </a>
+            <a class="sidebar-link active" href="/premium">
+                <i class="fas fa-crown"></i>
+                <span>Premium</span>
+            </a>
+            <button class="more-options-button" id="moreOptionsButton">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <a class="profile-link" href="/edit-account" id="profileLink">
+                <div class="profile-circle-sidebar">{{ initials }}</div>
+                <div class="profile-info">
+                    <span id="profileName">{{ full_name }}</span>
+                    <span class="profile-id">@ab93f1x</span>
+                </div>
+            </a>
+            <a class="logout-link" href="/logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="dropup-menu" id="dropupMenu">
+        <a href="/edit-account">
+            <i class="fas fa-user-circle"></i>
+            <span id="profileName">{{ full_name }}</span>
+        </a>
+        <a href="/logout" class="logout-link-mobile">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+
+    <div class="main-content">
+        <div class="premium-container">
+            <div class="premium-header">
+                <h1 class="premium-title">Progress faster in your<br>sign language course with Premium!</h1>
+                <p class="premium-subtitle">Unlock unlimited learning with exclusive premium features</p>
+            </div>
+
+            <div class="comparison-table">
+                <div class="table-header">
+                    <div class="column-title"></div>
+                    <div class="column-title">FREE</div>
+                    <div class="column-title premium-col">
+                        <span class="premium-badge">
+                            <i class="fas fa-crown"></i>
+                            PREMIUM
+                        </span>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-name">
+                        <div class="feature-icon">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>No Limits</strong>
+                            <div class="feature-desc">Unlimited hearts & practice</div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark inactive">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-name">
+                        <div class="feature-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Advanced Lessons</strong>
+                            <div class="feature-desc">Specialized & complex content</div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark inactive">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-name">
+                        <div class="feature-icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Ad-Free Experience</strong>
+                            <div class="feature-desc">Learn without interruptions</div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark inactive">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-name">
+                        <div class="feature-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Achievement Certificates</strong>
+                            <div class="feature-desc">Verified completion badges</div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark inactive">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-name">
+                        <div class="feature-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Early Access</strong>
+                            <div class="feature-desc">Be first to try new features</div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark inactive">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-row">
+                    <div class="feature-name">
+                        <div class="feature-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="feature-text">
+                            <strong>Learning Content</strong>
+                            <div class="feature-desc">Core learning materials</div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="check-cell">
+                        <div class="check-mark active">
+                            <div class="check-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta-section">
+                <button class="cta-button" onclick="window.location.href='/package'">
+                    <span>Start my free 7 days</span>
+                </button>
+                <br>
+                <a href="/dashboard" class="no-thanks">No Thanks</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/navbar_logic.js"></script>
+</body>
+</html>

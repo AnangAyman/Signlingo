@@ -164,6 +164,18 @@ def dashboard():
                            user_league = user.league,
                            user_rank=user_rank)
 
+@auth_bp.route('/premium', methods=['GET', 'POST'])
+def premium():
+    return render_template('premium.html')
+
+@auth_bp.route('/package', methods=['GET', 'POST'])
+def package():
+    return render_template('package.html')
+
+@auth_bp.route('/payment', methods=['GET', 'POST'])
+def payment():
+    return render_template('payment.html')
+
 @auth_bp.route('/logout')
 def logout():
     session.pop('user', None)

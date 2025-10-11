@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Plan - SignLingo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/global_style.css">
+    <link rel="stylesheet" href="static/css/package_style.css">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="/dashboard">SignLingo</a>
+        </div>
+        <div class="sidebar-menu">
+            <a class="sidebar-link" href="/dashboard">
+                <i class="fas fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="sidebar-link" href="/course">
+                <i class="fas fa-book"></i>
+                <span>Courses</span>
+            </a>
+            <!-- <a class="sidebar-link" href="/daily-quiz">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Daily Quiz</span>
+            </a> -->
+            <a class="sidebar-link" href="/leaderboard">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a class="sidebar-link" href="/shop">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Shop</span>
+            </a>
+            <a class="sidebar-link active" href="/premium">
+                <i class="fas fa-crown"></i>
+                <span>Premium</span>
+            </a>
+            <button class="more-options-button" id="moreOptionsButton">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <a class="profile-link" href="/edit-account" id="profileLink">
+                <div class="profile-circle-sidebar">{{ initials }}</div>
+                <div class="profile-info">
+                    <span id="profileName">{{ full_name }}</span>
+                    <span class="profile-id">@ab93f1x</span>
+                </div>
+            </a>
+            <a class="logout-link" href="/logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="dropup-menu" id="dropupMenu">
+        <a href="/edit-account">
+            <i class="fas fa-user-circle"></i>
+            <span id="profileName">{{ full_name }}</span>
+        </a>
+        <a href="/logout" class="logout-link-mobile">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+
+    <div class="main-content">
+        <div class="package-container">
+            <div class="package-header">
+                <div class="super-badge">SUPER</div>
+                <h1 class="package-title">Choose a plan for after your 7-day<br>free trial</h1>
+            </div>
+
+            <div class="packages-wrapper">
+                <div class="package-card" data-plan="family" data-price="RP 154.916,67 / MO" data-annual="1.259.000,00">
+                    <div class="package-badge">2-6 MEMBERS</div>
+                    <div class="package-content">
+                        <div class="package-left">
+                            <div class="package-duration">Family Plan</div>
+                            <div class="package-members">12 months</div>
+                        </div>
+                        <div class="package-right">
+                            <div class="package-price">RP 154.916,67 / MO</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="package-card selected" data-plan="yearly" data-price="RP 104.916,67 / MO" data-annual="1.259.000,00">
+                    <div class="package-badge">MOST POPULAR</div>
+                    <div class="package-content">
+                        <div class="package-left">
+                            <div class="package-duration">12 months</div>
+                        </div>
+                        <div class="package-right">
+                            <div class="package-price">RP 104.916,67 / MO</div>
+                        </div>
+                        <div class="check-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="package-card" data-plan="monthly" data-price="RP 195.000,00 / MO" data-annual="195.000,00">
+                    <div class="package-content">
+                        <div class="package-left">
+                            <div class="package-duration">1 month</div>
+                        </div>
+                        <div class="package-right">
+                            <div class="package-price">RP 195.000,00 / MO</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pricing-info" id="pricingInfo">
+                7 day free trial, then Rp <span id="annualPrice">1.259.000,00</span> per year<br>
+                (Rp <span id="monthlyPrice">104.916,67</span>/month, billed annually) plus applicable taxes
+            </div>
+
+            <button class="cta-button" onclick="window.location.href='/payment'">
+                <span>START MY FREE 7 DAYS</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/navbar_logic.js"></script>
+    <script src="../static/js/package_logic.js"></script>
+</body>
+</html>
