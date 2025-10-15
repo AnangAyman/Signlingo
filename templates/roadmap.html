@@ -99,32 +99,23 @@
                     </div>
 
                     <div class="roadmap-path">
-                        <form action="{{ url_for('auth.video_learning') }}" method="POST">
-                            <div class="lesson-node completed">
-                                <input type="hidden" name="button_value" value="1">
-                                <button class="lesson-button">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </div>
-                        </form>
+                        <div class="lesson-node completed">
+                            <button class="lesson-button">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
 
-                        <form action="{{ url_for('auth.video_learning') }}" method="POST">
-                            <div class="lesson-node current">
-                                <input type="hidden" name="button_value" value="2">
-                                <button class="lesson-button">
-                                    <i class="fas fa-star"></i>
-                                </button>
-                            </div>
-                        </form>
+                        <div class="lesson-node current">
+                            <button class="lesson-button">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        </div>
 
-                        <form action="{{ url_for('auth.video_learning') }}" method="POST">
-                            <div class="lesson-node treasure">
-                                <input type="hidden" name="button_value" value="3">
-                                <button class="lesson-button">
-                                    <i class="fas fa-trophy"></i>
-                                </button>
-                            </div>
-                        </form>
+                        <div class="lesson-node treasure">
+                            <button class="lesson-button">
+                                <i class="fas fa-trophy"></i>
+                            </button>
+                        </div>
 
                         <div class="lesson-node locked">
                             <button class="lesson-button">
