@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import Lesson, UserLessonStatus, db, User  # Import the database and User model
 from models import Course, Module, Unit
 import random,json
-from tertiary import get_initials, get_random_question
+from tertiary import get_initials, get_random_question, get_set_question
 from email_validator import validate_email, EmailNotValidError
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
@@ -697,12 +697,21 @@ def decrement_life():
     return jsonify({'success': False, 'error': 'User not found'}), 404
 
 # In routes.py
-@auth_bp.route('/video_learning')
+@auth_bp.route('/video_learning', methods=['GET','POST'])
 def video_learning():
     user_id = session.get('user_id')
     if not user_id:
         flash('Please log in to access learning videos.', 'warning')
         return redirect(url_for('auth.login'))
+
+    level_str = request.form.get('button_value') or request.args.get('level') or session.get('selected_level', 1)
+    try:
+        level = int(level_str)
+    except (TypeError, ValueError):
+        level = 1
+    
+    session['selected_level'] = level 
+   
 
     all_db_lessons = Lesson.query.order_by(Lesson.order).all() # Assumes lessons are seeded
     # (If not seeded, you might call get_or_create_lessons_from_json() here, but preferably seeded via CLI)
@@ -843,8 +852,9 @@ def course():
 
 @auth_bp.route('/get-question')
 def get_question():
-    question = get_random_question(questions)
-
+    level = str(session.get('selected_level', '1'))
+    question = get_set_question(level, questions)
+    
     # Randomize the choices
     choices = question['choices']
     random_choices = random.sample(choices, len(choices))  # Shuffle choices
@@ -861,7 +871,8 @@ def get_question():
 
 @auth_bp.route('/get-question-ml')
 def get_question_ml():
-    question = get_random_question(ml_questions)
+    level = str(session.get('selected_level', '1'))
+    question = get_set_question(level, ml_questions)
 
     # Prepare the response
     response = {
@@ -877,6 +888,8 @@ def check_answer():
     data = request.json
     selected = data.get('selected')
     correct = data.get('correct')
+
+    session['question_index'] += 1
 
     is_correct = (selected == correct)
     if is_correct:

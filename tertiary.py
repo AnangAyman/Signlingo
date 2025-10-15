@@ -24,3 +24,33 @@ def get_random_question(questions):
     session['questions_asked'] = questions_asked 
 
     return questions[id]
+
+def get_set_question(level, questions):
+    # session['question_index'] += 1
+    sets = {
+        '1': list(range(1, 11)),    # Set 1 → questions 1–9
+        '2': list(range(11, 21)),   # Set 2 → questions 10–17
+        '3': list(range(19, 27))    # Set 3 → questions 18–25
+    }
+
+    selected_ids = sets.get(level, sets['1'])
+    selected_questions = [q for q in questions if q['id'] in selected_ids]
+
+    #  # Track progress in session
+    # if 'question_index' not in session:
+    #     session['question_index'] = 0
+    #     session['current_set'] = level
+
+    # If level changes, reset progress
+    if session.get('current_set') != level:
+        session['question_index'] = 0
+        session['current_set'] = level
+
+    index = session['question_index']
+    if index >= len(selected_questions):
+        session['question_index'] = 0
+        return jsonify({'done': True})
+
+    question = selected_questions[index]
+
+    return question
