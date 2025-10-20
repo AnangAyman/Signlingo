@@ -88,6 +88,26 @@ h1 {
     line-height: 140%;
 }
 
+/* Add this to your existing login_style.css */
+
+.success-message {
+    background-color: #E5F7ED;
+    color: #0F9D58;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    line-height: 140%;
+    border: 1px solid #C8E6C9;
+}
+
+.success-message i {
+    color: #0F9D58;
+}
+
 input[type="text"],
 input[type="password"],
 input[type="email"] {
