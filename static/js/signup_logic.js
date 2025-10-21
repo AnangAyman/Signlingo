@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const signupForm = document.getElementById('signup-form');
+    const successMessage = document.querySelector('.success-message');
+    if (successMessage) {
+        document.getElementById('signup-form').reset();
+    }
     
     if (signupForm) {
         signupForm.addEventListener('submit', function(event) {

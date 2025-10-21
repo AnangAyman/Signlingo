@@ -61,6 +61,52 @@ def register():
 
         name = request.form.get('name')
         if name == "":
+            name = "Anonymous"
+
+        email = request.form.get('email')
+        password = request.form.get('password')
+
+        try:
+            # Validate and normalize email
+            valid = validate_email(email, check_deliverability=True)
+            email = valid.email  # normalized email (e.g. lowercase domain)
+
+        except EmailNotValidError as e:
+            # The email is not valid
+            error_message = str(e)
+            return render_template('sign_up.html', error=error_message)
+
+        if User.query.filter_by(email=email).first():
+            error_message = "Email already exists."
+            return render_template('sign_up.html', error=error_message)
+
+        first_name, initials = get_initials(name)
+        username = generate_username(first_name)
+        new_user = User(age=age, name=name, email=email, password=password, username=username)
+        new_user.is_verified = False
+        db.session.add(new_user)
+        db.session.commit()
+
+        token = generate_token(email)
+        verify_url = url_for('auth.verify_email', token=token, _external=True)
+        msg = Message('Verify your email for SignLingo', sender=app.config['MAIL_USERNAME'], recipients=[email])
+        msg.body = f"Hi {name}, please verify your email by clicking this link: {verify_url}"
+        
+        if safe_send_email(msg):
+            # Instead of redirecting, show success message on the same page
+            success_message = "Verification email sent! Please check your inbox to verify your account."
+            return render_template('sign_up.html', success_message=success_message)
+        else:
+            error_message = "Registered successfully, but we couldn't send the verification email. Please try again later."
+            return render_template('sign_up.html', error=error_message)
+
+    return render_template('sign_up.html')
+    if request.method == 'POST':
+        print(request.form) #! For debugging delete later
+        age = request.form.get('age')
+
+        name = request.form.get('name')
+        if name == "":
             name = "Anonymous Wanderer"
 
         email = request.form.get('email')
@@ -223,7 +269,7 @@ def dashboard():
 
 @auth_bp.route('/start', methods=['GET', 'POST'])
 def start():
-    render_template('start.html')
+    return render_template('start.html')
 
 @auth_bp.route('/roadmap', methods=['GET', 'POST'])
 def roadmap():

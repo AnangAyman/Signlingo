@@ -246,6 +246,32 @@
     align-items: center;
 }
 
+.module-card.locked {
+    background-color: #F9FAFB; /* Slightly off-white background */
+    cursor: not-allowed;
+}
+
+.module-card.locked:hover {
+    transform: none; /* Disable hover lift effect */
+    box-shadow: 0 4px 12px var(--card-shadow); /* Keep default shadow */
+}
+
+.module-card.locked .subheading,
+.module-card.locked .caption {
+    color: #9CA3AF; /* Muted text color */
+}
+
+.module-card.locked .module-badge {
+    background-color: #E5E7EB;
+    color: #9CA3AF;
+}
+
+.module-card.locked .icon-button {
+    background: #E5E7EB; /* Muted gray background for the button */
+    color: #9CA3AF;
+    pointer-events: none; /* Make the button unclickable */
+}
+
 /* Icon Buttons */
 .icon-button {
     width: 48px;

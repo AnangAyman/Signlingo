@@ -47,7 +47,7 @@
                 <div class="profile-circle-sidebar">{{ initials }}</div>
                 <div class="profile-info">
                     <span id="profileName">{{ full_name }}</span>
-                    <span class="profile-id">{{user.username}}</span>
+                    <span class="profile-id" id="profileUsername">{{user.username}}</span>
                 </div>
             </a>
             <a class="logout-link" href="/logout">
@@ -99,33 +99,33 @@
                     </div>
 
                     <div class="roadmap-path">
-                        <div class="lesson-node completed">
-                            <button class="lesson-button">
-                                <i class="fas fa-check"></i>
+                        <div class="lesson-node current">
+                            <button class="lesson-button" onclick="window.location.href='/video_learning'">
+                                <i class="fas fa-star"></i>
                             </button>
                         </div>
 
-                        <div class="lesson-node current">
+                        <div class="lesson-node locked">
                             <button class="lesson-button">
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-lock"></i>
+                            </button>
+                        </div>
+
+                        <div class="lesson-node locked">
+                            <button class="lesson-button">
+                                <i class="fas fa-lock"></i>
+                            </button>
+                        </div>
+
+                        <div class="lesson-node locked">
+                            <button class="lesson-button">
+                                <i class="fas fa-lock"></i>
                             </button>
                         </div>
 
                         <div class="lesson-node treasure">
                             <button class="lesson-button">
                                 <i class="fas fa-trophy"></i>
-                            </button>
-                        </div>
-
-                        <div class="lesson-node locked">
-                            <button class="lesson-button">
-                                <i class="fas fa-lock"></i>
-                            </button>
-                        </div>
-
-                        <div class="lesson-node locked">
-                            <button class="lesson-button">
-                                <i class="fas fa-lock"></i>
                             </button>
                         </div>
                     </div>

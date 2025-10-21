@@ -51,7 +51,7 @@
                 <div class="profile-circle-sidebar">{{ initials }}</div>
                 <div class="profile-info">
                     <span id="profileName">{{ full_name }}</span>
-                    <span class="profile-id">{{user.username}}</span>
+                    <span class="profile-id" id="profileUsername">{{user.username}}</span>
                 </div>
             </a>
             <a class="logout-link" href="/logout">
@@ -109,7 +109,7 @@
                         </div>
                     </div>
 
-                    <div class="stats-grid mb-4">
+                    <!-- <div class="stats-grid mb-4">
                         <div class="stat-card">
                             <div class="stat-number">0%</div>
                             <div class="stat-label">Average Score</div>
@@ -118,7 +118,7 @@
                             <div class="stat-number">0</div>
                             <div class="stat-label">Completed Lessons</div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="section-header">
                         <h3 class="subheading">All modules</h3>
@@ -139,11 +139,10 @@
                         </div>
                         <div class="module-footer">
                             <span class="caption">0% practiced</span>
-                            <span class="caption caption-accent">3 lessons remaining</span>
                         </div>
                     </div>
 
-                    <div class="module-card">
+                    <div class="module-card locked">
                         <div class="module-header">
                             <div>
                                 <span class="module-badge">MODULE</span>
@@ -158,7 +157,24 @@
                         </div>
                         <div class="module-footer">
                             <span class="caption">0% practiced</span>
-                            <span class="caption caption-accent">3 lessons remaining</span>
+                        </div>
+                    </div>
+
+                    <div class="module-card locked">
+                        <div class="module-header">
+                            <div>
+                                <span class="module-badge">MODULE</span>
+                                <h3 class="subheading mt-2">Module 3</h3>
+                            </div>
+                            <button class="icon-button icon-button-primary" onclick="window.location.href='/roadmap'">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="module-footer">
+                            <span class="caption">0% practiced</span>
                         </div>
                     </div>
                 </div>

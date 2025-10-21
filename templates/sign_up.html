@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/7fb2b68ee1.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="../static/css/signup_style.css"> 
 </head>
 <body>
@@ -24,13 +25,21 @@
             
             {% if error %}
             <div class="error-message">
-                <span>⚠</span>
+                <i class="fa-solid fa-triangle-exclamation"></i>
                 <p class="error">{{ error }}</p>
             </div>
             {% endif %}
             
+            <!-- Add success message display for verification email -->
+            {% if success_message %}
+            <div class="success-message">
+                <i class="fa-solid fa-circle-check"></i>
+                <p class="success">{{ success_message }}</p>
+            </div>
+            {% endif %}
+            
             <div id="client-error-message" class="error-message" style="display: none;">
-                <span>⚠</span>
+                <i class="fa-solid fa-triangle-exclamation"></i>
                 <p class="error"></p>
             </div>
         
