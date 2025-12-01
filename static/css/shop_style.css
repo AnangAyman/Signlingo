@@ -207,9 +207,30 @@
     margin-right: var(--space-s);
 }
 
+/* --- Shop List Action Buttons --- */
 .item-action {
-    flex-shrink: 0;
-    margin-left: var(--space-m);
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between Use and Buy buttons */
+}
+
+.btn-use-shop {
+    background: transparent;
+    border: 2px solid var(--accent, #4CAF50);
+    color: var(--accent, #4CAF50);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-use-shop:hover {
+    background: var(--accent, #4CAF50);
+    color: white;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    transform: translateY(-2px);
 }
 
 /* ============================================= */
@@ -287,6 +308,7 @@
 .inventory-items {
     display: grid;
     gap: var(--space-m);
+    align-items: center;
 }
 
 .inventory-item {
@@ -336,6 +358,24 @@
     position: relative;
 }
 
+.inventory-item.owned-item {
+    cursor: pointer;
+}
+
+.inventory-item.owned-item::before {
+    background: linear-gradient(180deg, var(--accent, #4CAF50), #45a049);
+}
+
+.inventory-item.owned-item:hover {
+    border-color: rgba(76, 175, 80, 0.3);
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.15);
+    transform: translateY(-2px);
+}
+
+.inventory-item.owned-item:active {
+    transform: scale(0.98);
+}
+
 .inventory-item:nth-child(1) .item-icon-wrapper {
     background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 138, 128, 0.15));
     color: var(--secondary);
@@ -356,6 +396,50 @@
     color: #8B5CF6;
 }
 
+.inventory-actions-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto; /* Push to the right */
+}
+
+.inventory-count {
+    /* Keep your existing style, but remove any margins if they cause issues */
+    margin: 0; 
+}
+
+/* The New Use Button */
+.btn-use {
+    background: linear-gradient(135deg, var(--accent, #4CAF50), #45a049); /* Green for 'Go/Use' */
+    color: var(--white);
+    border: none;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    white-space: nowrap;
+}
+
+.btn-use:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-use:active {
+    transform: scale(0.95);
+}
+
+.btn-use:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 .inventory-details {
     flex-grow: 1;
     display: flex;
@@ -368,12 +452,6 @@
     font-weight: 600;
     color: var(--neutral-dark);
     line-height: 1.2;
-}
-
-.inventory-subtitle {
-    font-size: 12px;
-    color: #9CA3AF;
-    font-weight: 400;
 }
 
 .inventory-count {
@@ -520,6 +598,105 @@
     100% {
         transform: scale(1);
     }
+}
+
+/* ============================================= */
+/* Shop Page: Modal Buttons & Icons              */
+/* ============================================= */
+
+/* Generic Modal Action Button Base */
+.btn-modal-action {
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.btn-modal-action:hover {
+    transform: translateY(-2px);
+    color: white;
+}
+
+.btn-modal-action:active {
+    transform: scale(0.98);
+}
+
+/* Buy Confirm Button (Blue/Cyan Gradient) */
+.btn-modal-buy {
+    background: linear-gradient(135deg, var(--primary, #00B8D4), #00A8B0);
+    box-shadow: 0 4px 12px rgba(0, 184, 212, 0.3);
+}
+
+.btn-modal-buy:hover {
+    box-shadow: 0 6px 16px rgba(0, 184, 212, 0.4);
+}
+
+/* Use Confirm Button (Green Gradient) */
+.btn-modal-use {
+    background: linear-gradient(135deg, var(--accent, #4CAF50), #43A047);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-modal-use:hover {
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+/* Cancel Button (Subtle Gray) */
+.btn-modal-cancel {
+    background: #f3f4f6;
+    color: #6B7280;
+    border: 1px solid #e5e7eb;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-modal-cancel:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/* ============================================= */
+/* Success Modal Specifics                       */
+/* ============================================= */
+
+/* A full-width, centered button for the success message */
+.btn-modal-continue {
+    background: linear-gradient(135deg, var(--accent, #4CAF50), #43A047);
+    color: var(--white);
+    width: 80%;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 12px 24px;
+    /* Green shadow */
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-modal-continue:hover {
+    transform: translateY(-2px);
+    /* Slightly larger/darker green shadow on hover */
+    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    color: var(--white);
+}
+
+.btn-modal-continue:active {
+    transform: scale(0.98);
+}
+
+.success-message-body {
+    font-size: 16px;
+    color: #6B7280;
+    margin-bottom: var(--space-l);
+    line-height: 1.6;
 }
 
 /* ============================================= */
