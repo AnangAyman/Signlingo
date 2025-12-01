@@ -300,6 +300,73 @@ def roadmap():
         user=user
     )
 
+@auth_bp.route('/shop', methods=['GET', 'POST'])
+def shop():
+    # Import necessary modules for date and database calculations
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    import pytz
+
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    login_today = session.get("today_login")
+
+    user = User.query.get(user_id)
+    full_name = user.name
+
+    first_name, initials = get_initials(full_name)
+
+    # ----------------- STREAK CALCULATION -----------------
+    # (Logic copied from dashboard to ensure consistency)
+    indonesia_tz = pytz.timezone('Asia/Jakarta')
+    
+    today = datetime.now(indonesia_tz).date()
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+
+    # Query activity dates for the current week
+    activity_dates = db.session.query(
+        func.date(UserLessonStatus.last_updated).label('activity_date')
+    ).filter(
+        UserLessonStatus.user_id == user_id,
+        func.date(UserLessonStatus.last_updated).between(monday, sunday)
+    ).distinct().all()
+
+    # Convert to proper date objects
+    active_dates = {datetime.strptime(date.activity_date, '%Y-%m-%d').date()
+                    if isinstance(date.activity_date, str)
+                    else date.activity_date
+                    for date in activity_dates}
+
+    # Build streak data for this week
+    streak_data = []
+    for i in range(7):  # Monday → Sunday
+        check_date = monday + timedelta(days=i)
+        is_active = check_date in active_dates
+        streak_data.append({'date': check_date, 'is_active': is_active})
+
+    # Calculate current streak (counting backwards from today)
+    current_streak = 0
+    for i in range(6, -1, -1):
+        day_entry = streak_data[i]
+        if day_entry['date'] > today:
+            continue
+        if day_entry['is_active']:
+            current_streak += 1
+        else:
+            break 
+    # ------------------------------------------------------
+    
+    return render_template('shop.html', 
+                           full_name=full_name, 
+                           first_name=first_name, 
+                           initials=initials, 
+                           user=user,
+                           login_today=login_today,
+                           current_streak=current_streak)
+
 @auth_bp.route('/premium', methods=['GET', 'POST'])
 def premium():
     user_id = session.get('user_id')
