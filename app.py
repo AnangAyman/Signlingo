@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from models import db
-from initialization import get_or_create_lessons_from_json, create_admin_user
+from initialization import get_or_create_lessons_from_json, create_admin_user, seed_shop_items
 import os
 from flask_mail import Mail
 
@@ -41,6 +41,9 @@ def init_app_command():
         
         create_admin_user()
         print("Admin user created.")
+
+        seed_shop_items()
+        print("Shop items seeded")
     print("Application initialization finished!")
 
 if __name__ == '__main__':

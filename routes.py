@@ -11,6 +11,7 @@ import time
 from smtplib import SMTPException
 from datetime import datetime, timedelta
 import pytz
+from models import ShopItem, UserItem # Add these to your imports
 
 def safe_send_email(msg, retries=3, delay=3):
     """Send email with retry logic to handle intermittent network issues."""
@@ -300,72 +301,6 @@ def roadmap():
         user=user
     )
 
-@auth_bp.route('/shop', methods=['GET', 'POST'])
-def shop():
-    # Import necessary modules for date and database calculations
-    from datetime import datetime, timedelta
-    from sqlalchemy import func
-    import pytz
-
-    user_id = session.get('user_id')
-    if not user_id:
-        return redirect(url_for('auth.login'))
-    
-    login_today = session.get("today_login")
-
-    user = User.query.get(user_id)
-    full_name = user.name
-
-    first_name, initials = get_initials(full_name)
-
-    # ----------------- STREAK CALCULATION -----------------
-    # (Logic copied from dashboard to ensure consistency)
-    indonesia_tz = pytz.timezone('Asia/Jakarta')
-    
-    today = datetime.now(indonesia_tz).date()
-    monday = today - timedelta(days=today.weekday())
-    sunday = monday + timedelta(days=6)
-
-    # Query activity dates for the current week
-    activity_dates = db.session.query(
-        func.date(UserLessonStatus.last_updated).label('activity_date')
-    ).filter(
-        UserLessonStatus.user_id == user_id,
-        func.date(UserLessonStatus.last_updated).between(monday, sunday)
-    ).distinct().all()
-
-    # Convert to proper date objects
-    active_dates = {datetime.strptime(date.activity_date, '%Y-%m-%d').date()
-                    if isinstance(date.activity_date, str)
-                    else date.activity_date
-                    for date in activity_dates}
-
-    # Build streak data for this week
-    streak_data = []
-    for i in range(7):  # Monday → Sunday
-        check_date = monday + timedelta(days=i)
-        is_active = check_date in active_dates
-        streak_data.append({'date': check_date, 'is_active': is_active})
-
-    # Calculate current streak (counting backwards from today)
-    current_streak = 0
-    for i in range(6, -1, -1):
-        day_entry = streak_data[i]
-        if day_entry['date'] > today:
-            continue
-        if day_entry['is_active']:
-            current_streak += 1
-        else:
-            break 
-    # ------------------------------------------------------
-    
-    return render_template('shop.html', 
-                           full_name=full_name, 
-                           first_name=first_name, 
-                           initials=initials, 
-                           user=user,
-                           login_today=login_today,
-                           current_streak=current_streak)
 
 @auth_bp.route('/premium', methods=['GET', 'POST'])
 def premium():
@@ -1063,7 +998,122 @@ def edit_account():
     return render_template('edit_account.html', current_user_data=current_user_data_for_form, user=user, initials=initials, full_name=full_name)
 
 
+# ----------------------------------- SHOP Functionality --------------------------------------------
+@auth_bp.route('/shop', methods=['GET', 'POST'])
+def shop():
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    import pytz
 
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('auth.login'))
+    
+    login_today = session.get("today_login")
+    user = User.query.get(user_id)
+    full_name = user.name
+    first_name, initials = get_initials(full_name)
+
+    # --- Fetch Shop Data ---
+    shop_items = ShopItem.query.all()
+    
+    # Create a dictionary for quick lookup of inventory quantities: {item_id: quantity}
+    user_inventory_map = {item.item_id: item.quantity for item in user.inventory.all()}
+
+    # Calculate Streak (Existing logic preserved)
+    indonesia_tz = pytz.timezone('Asia/Jakarta')
+    today = datetime.now(indonesia_tz).date()
+    monday = today - timedelta(days=today.weekday())
+    sunday = monday + timedelta(days=6)
+
+    activity_dates = db.session.query(
+        func.date(UserLessonStatus.last_updated).label('activity_date')
+    ).filter(
+        UserLessonStatus.user_id == user_id,
+        func.date(UserLessonStatus.last_updated).between(monday, sunday)
+    ).distinct().all()
+
+    active_dates = {datetime.strptime(date.activity_date, '%Y-%m-%d').date()
+                    if isinstance(date.activity_date, str)
+                    else date.activity_date
+                    for date in activity_dates}
+
+    streak_data = []
+    for i in range(7):
+        check_date = monday + timedelta(days=i)
+        is_active = check_date in active_dates
+        streak_data.append({'date': check_date, 'is_active': is_active})
+
+    current_streak = 0
+    for i in range(6, -1, -1):
+        day_entry = streak_data[i]
+        if day_entry['date'] > today:
+            continue
+        if day_entry['is_active']:
+            current_streak += 1
+        else:
+            break 
+    
+    return render_template('shop.html', 
+                           full_name=full_name, 
+                           first_name=first_name, 
+                           initials=initials, 
+                           user=user,
+                           login_today=login_today,
+                           current_streak=current_streak,
+                           shop_items=shop_items,           # Pass items to template
+                           user_inventory_map=user_inventory_map) # Pass inventory map
+
+@auth_bp.route('/buy-item', methods=['POST'])
+def buy_item():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Please log in.'}), 401
+
+    data = request.get_json()
+    item_id = data.get('item_id')
+
+    user = User.query.get(user_id)
+    item = ShopItem.query.get(item_id)
+
+    if not item:
+        return jsonify({'success': False, 'message': 'Item not found.'}), 404
+    
+    if item.item_key == 'refill_hearts' and user.lives >= 5:
+        return jsonify({'success': False, 'message': 'Your health is already full!'}), 400
+
+    # Check if user has enough points
+    if user.points < item.price:
+        return jsonify({'success': False, 'message': 'Not enough XP.'}), 400
+
+    try:
+        # Deduct points
+        user.points -= item.price
+
+        if item.item_key == 'refill_hearts':
+            user.lives = 5  # Max lives
+        else:
+            # Add to inventory
+            user_item = UserItem.query.filter_by(user_id=user.id, item_id=item.id).first()
+            if user_item:
+                user_item.quantity += 1
+            else:
+                new_inventory_item = UserItem(user_id=user.id, item_id=item.id, quantity=1)
+                db.session.add(new_inventory_item)
+
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Successfully purchased {item.name}!',
+            'new_balance': user.points,
+            'new_lives': user.lives
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Transaction failed.'}), 500
+    
 # ----------------------------------- CNN-LSTM MODEL ------------------------------------------------
 
 
