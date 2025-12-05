@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - SignLingo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/global_style.css">
+    <link rel="stylesheet" href="static/css/shop_style.css">
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="/dashboard">SignLingo</a>
+        </div>
+        <div class="sidebar-menu">
+            <a class="sidebar-link" href="/dashboard">
+                <i class="fas fa-house"></i>
+                <span>Dashboard</span>
+            </a>
+            <a class="sidebar-link" href="/course">
+                <i class="fas fa-book"></i>
+                <span>Courses</span>
+            </a>
+            <a class="sidebar-link" href="/leaderboard">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </a>
+            <a class="sidebar-link active" href="/shop">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Shop</span>
+            </a>
+            <a class="sidebar-link" href="/premium">
+                <i class="fas fa-crown"></i>
+                <span>Premium</span>
+            </a>
+            <button class="more-options-button" id="moreOptionsButton">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+        </div>
+        <div class="sidebar-footer">
+            <a class="profile-link" href="/edit-account" id="profileLink">
+                <div class="profile-circle-sidebar">{{ initials }}</div>
+                <div class="profile-info">
+                    <span id="profileName">{{ full_name }}</span>
+                    <span class="profile-id" id="profileUsername">{{user.username}}</span>
+                </div>
+            </a>
+            <a class="logout-link" href="/logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="dropup-menu" id="dropupMenu">
+        <a href="/edit-account">
+            <i class="fas fa-user-circle"></i>
+            <span id="profileName">{{ full_name }}</span>
+        </a>
+        <a href="/logout" class="logout-link-mobile">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="content-wrapper">
+            <div class="shop-header mb-4">
+                <div>
+                    <h1 class="hero-title">Shop</h1>
+                    <p class="body-large">Use your XP to purchase power-ups and items</p>
+                </div>
+                <div class="user-stats-display">
+                    <div class="stat-item stat-streak">
+                        <i class="fas fa-fire"></i>
+                        <span class="stat-amount">{{ current_streak }}</span>
+                    </div>
+                    <div class="stat-item stat-heart">
+                        <i class="fas fa-heart"></i>
+                        <span class="stat-amount" id="displayLives">{{ user.lives }}</span>
+                    </div>
+                    <div class="stat-item stat-xp">
+                        <i class="fas fa-star"></i>
+                        <span class="stat-amount" id="displayPoints">{{ user.points }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="section-header">
+                        <h2 class="subheading">Power-ups</h2>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        {% for item in shop_items %}
+                        <div class="col-12">
+                            <div class="shop-item">
+                                <div class="{{ item.icon_background_class }}">
+                                    <i class="{{ item.icon_class }}"></i>
+                                </div>
+                                <div class="item-details">
+                                    <h4 class="item-name">{{ item.name }}</h4>
+                                    <p class="item-description">{{ item.description }}</p>
+                                    <div class="item-price">
+                                        <i class="fas fa-star"></i> {{ item.price }} XP
+                                    </div>
+                                </div>
+                                <div class="item-action">
+                                    {% set count = user_inventory_map.get(item.id, 0) %}
+                                    
+                                    {% if count > 0 %}
+                                    <button class="btn-use-shop" 
+                                            onclick="prepareUseItem('{{ item.id }}', '{{ item.name }}')">
+                                        Use
+                                    </button>
+                                    {% endif %}
+
+                                    <button class="btn-buy" 
+                                            data-id="{{ item.id }}" 
+                                            data-name="{{ item.name }}"
+                                            data-desc="{{ item.description }}"
+                                            data-price="{{ item.price }}">
+                                        Buy Now
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="inventory-card mb-4">
+                        <div class="card-header-custom">
+                            <i class="fas fa-backpack"></i>
+                            <h3 class="subheading">Your Inventory</h3>
+                        </div>
+                        <div class="inventory-items">
+                            {% for item in shop_items %}
+                                {% set count = user_inventory_map.get(item.id, 0) %}
+                                
+                                <div class="inventory-item {% if count > 0 %}owned-item{% endif %}"
+                                    {% if count > 0 %}
+                                    onclick="prepareUseItem('{{ item.id }}', '{{ item.name }}')"
+                                    {% endif %}>
+                                    
+                                    <div class="item-icon-wrapper">
+                                        <i class="{{ item.icon_class }}"></i>
+                                    </div>
+                                    
+                                    <div class="inventory-details">
+                                        <span class="inventory-name">{{ item.name }}</span>
+                                    </div>
+                                    
+                                    <div class="inventory-actions-wrapper">
+                                        <span class="inventory-count" id="inv-count-{{ item.id }}">
+                                            {{ count }}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="earn-xp-card mb-4">
+                        <div class="earn-xp-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h3 class="subheading mb-2">Need More XP?</h3>
+                        <p class="caption-white mb-3">Complete lessons and practice to earn XP points</p>
+                        <button class="btn-earn" onclick="window.location.href='/dashboard'">
+                            Start Learning
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="useItemModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Use Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center pb-4">
+                    <div class="preview-icon mb-3" style="background: linear-gradient(135deg, #4CAF50, #81C784); width: 70px; height: 70px; font-size: 32px;">
+                        <i class="fas fa-basket-shopping fa-bounce"></i>
+                    </div>
+                    <h4 class="mb-2">Use <span id="useItemName"></span>?</h4>
+                    <p class="text-muted">This will consume 1 item from your inventory.</p>
+                    <input type="hidden" id="useItemId">
+                </div>
+                <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-modal-action btn-modal-use" id="confirmUseBtn">
+                        <i class="fas fa-magic"></i> Confirm Use
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="purchaseModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Confirm Purchase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="purchase-preview">
+                        <div class="preview-icon" id="modalItemIcon" style="width: 70px; height: 70px; font-size: 32px;">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        
+                        <h4 id="modalItemName" class="mb-2"></h4>
+                        <p id="modalItemDescription" class="mb-4"></p>
+                        
+                        <div class="price-display">
+                            <span class="price-label">Cost:</span>
+                            <span class="price-value" id="modalItemPrice"></span>
+                        </div>
+                        <div class="balance-after mt-2">
+                            <span>Balance after purchase:</span>
+                            <span id="modalBalanceAfter"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center gap-2 pb-4">
+                    <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-modal-action btn-modal-buy" id="confirmPurchaseBtn">
+                        <i class="fas fa-shopping-cart"></i> Confirm Purchase
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                
+                <div class="modal-body text-center p-5">
+                    
+                    <div class="success-icon mb-4">
+                        <i class="fas fa-check fa-bounce" style="--fa-animation-iteration-count: 1;"></i>
+                    </div>
+                    
+                    <h4 class="fw-bold mb-3" style="font-family: 'Poppins', sans-serif; color: var(--neutral-dark);">
+                        Awesome!
+                    </h4>
+                    
+                    <p id="successMessage" class="success-message-body">
+                        Transaction completed successfully.
+                    </p>
+                    
+                    <button type="button" 
+                            class="btn-modal-action btn-modal-continue" 
+                            data-bs-dismiss="modal" 
+                            onclick="location.reload()">
+                        Great!
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../static/js/navbar_logic.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentItemId = null;
+        let currentItemPrice = 0;
+        let userXP = {{ user.points }};
+
+        document.querySelectorAll('.btn-buy').forEach(button => {
+            button.addEventListener('click', function() {
+                const itemId = this.dataset.id;
+                const itemName = this.dataset.name;
+                const itemDesc = this.dataset.desc;
+                const itemPrice = parseInt(this.dataset.price);
+
+                if (userXP < itemPrice) {
+                    alert('Not enough XP! Complete more lessons to earn XP.');
+                    return;
+                }
+
+                currentItemId = itemId;
+                currentItemPrice = itemPrice;
+
+                // Update modal content
+                document.getElementById('modalItemName').textContent = itemName;
+                document.getElementById('modalItemDescription').textContent = itemDesc;
+                document.getElementById('modalItemPrice').innerHTML = `<i class="fas fa-star"></i> ${itemPrice} XP`;
+                document.getElementById('modalBalanceAfter').innerHTML = `<i class="fas fa-star"></i> ${userXP - itemPrice} XP`;
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('purchaseModal'));
+                modal.show();
+            });
+        });
+
+        document.getElementById('confirmPurchaseBtn').addEventListener('click', function() {
+            // Logic to call backend
+            fetch('/buy-item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ item_id: currentItemId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide purchase modal
+                bootstrap.Modal.getInstance(document.getElementById('purchaseModal')).hide();
+
+                if (data.success) {
+                    // Update UI Variables
+                    userXP = data.new_balance;
+                    document.getElementById('displayPoints').textContent = userXP;
+                    
+                    if (data.new_lives !== undefined) {
+                        document.getElementById('displayLives').textContent = data.new_lives;
+                    }
+
+                    document.getElementById('successMessage').textContent = data.message;
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    successModal.show();
+                } else {
+                    alert(data.message || 'Error processing purchase');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            });
+        });
+
+        // --- New Logic for Using Items ---
+        function prepareUseItem(itemId, itemName) {
+            document.getElementById('useItemId').value = itemId;
+            document.getElementById('useItemName').textContent = itemName;
+            const modal = new bootstrap.Modal(document.getElementById('useItemModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirmUseBtn').addEventListener('click', function() {
+            // 1. Get the ID of the item being used
+            const itemId = document.getElementById('useItemId').value;
+            
+            // 2. Hide the "Use Item" Confirmation Modal
+            const useModalElement = document.getElementById('useItemModal');
+            const useModalInstance = bootstrap.Modal.getInstance(useModalElement);
+            useModalInstance.hide();
+
+            // 3. Simulate UI Update: Decrement the inventory count
+            const countElement = document.getElementById(`inv-count-${itemId}`);
+            if (countElement) {
+                let currentCount = parseInt(countElement.innerText);
+                // Decrease count by 1, but don't go below 0
+                if (currentCount > 0) {
+                    let newCount = currentCount - 1;
+                    countElement.innerText = newCount;
+
+                    // Optional: If you want to remove the 'Use' button from the shop list 
+                    // when count hits 0, you would add that logic here.
+                }
+            }
+
+            // 4. Set the success message
+            const successMsg = document.getElementById('successMessage');
+            if (successMsg) {
+                successMsg.textContent = "Item used successfully!";
+            }
+
+            // 5. Show the Success Modal
+            // We use a short timeout to ensure the previous modal's backdrop clears smoothly
+            setTimeout(() => {
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+            }, 150);
+        });
+    </script>
+</body>
+</html>

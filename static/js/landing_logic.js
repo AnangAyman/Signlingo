@@ -22,3 +22,18 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.feature-card, .step').forEach(el => {
     observer.observe(el);
 });
+
+function toggleFAQ(element) {
+    const faqItem = element.parentElement;
+    const allItems = document.querySelectorAll('.faq-item');
+    
+    // Close all other items
+    allItems.forEach(item => {
+        if (item !== faqItem) {
+            item.classList.remove('active');
+        }
+    });
+    
+    // Toggle current item
+    faqItem.classList.toggle('active');
+}

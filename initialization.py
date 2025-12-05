@@ -85,7 +85,9 @@ def create_admin_user():
             email=admin_email,
             password="admin", # IMPORTANT: In a real application, you must hash this password!
             is_verified = True,
-            username="@admin"
+            username="@admin",
+            lives = 100000,
+            points = 10000,
         )
         db.session.add(admin_user)
         try:
@@ -96,3 +98,51 @@ def create_admin_user():
             current_app.logger.error(f"Failed to create admin user: {e}")
     else:
         current_app.logger.info(f"Admin user with email {admin_email} already exists.")
+
+# Add this to initialization.py or run it where you seed the DB
+from models import db, ShopItem
+
+def seed_shop_items():
+    items = [
+        {
+            "name": "Refill Hearts",
+            "description": "Restore all your hearts to continue learning",
+            "price": 350,
+            "icon_class": "fas fa-heart",
+            "item_key": "refill_hearts",
+            "icon_background_class" : "item-icon heart-icon"
+        },
+        {
+            "name": "Streak Freeze",
+            "description": "Protect your streak for one day",
+            "price": 200,
+            "icon_class": "fas fa-snowflake",
+            "item_key": "streak_freeze",
+            "icon_background_class" : "item-icon freeze-icon"
+        },
+        {
+            "name": "XP Boost",
+            "description": "Double XP for 15 minutes",
+            "price": 500,
+            "icon_class": "fas fa-rocket",
+            "item_key": "xp_boost",
+            "icon_background_class" : "item-icon boost-icon"
+        },
+        {
+            "name": "Timer Freeze",
+            "description": "Stop the timer for 30 seconds in timed challenges",
+            "price": 300,
+            "icon_class": "fas fa-clock",
+            "item_key": "timer_freeze",
+            "icon_background_class" : "item-icon timer-icon"
+        }
+    ]
+
+    for data in items:
+        item = ShopItem.query.filter_by(item_key=data['item_key']).first()
+        if not item:
+            item = ShopItem(**data)
+            db.session.add(item)
+    
+    db.session.commit()
+    print("Shop items seeded successfully.")

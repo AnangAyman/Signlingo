@@ -113,3 +113,31 @@ class UserLessonStatus(db.Model):
 
     def __repr__(self):
         return f'<UserLessonStatus User: {self.user_id} Lesson: {self.lesson_id} Status: {self.status}>'
+
+
+# ------------- Shop Functionality ----------------------
+
+class ShopItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    icon_class = db.Column(db.String(50), nullable=False) # e.g., 'fas fa-heart'
+    icon_background_class = db.Column(db.String(50), nullable=False, default="item-icon")
+    item_key = db.Column(db.String(50), unique=True, nullable=False) # unique key for logic (e.g., 'refill_hearts')
+
+    def __repr__(self):
+        return f'<ShopItem {self.name}>'
+
+class UserItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('shop_item.id'), nullable=False)
+    quantity = db.Column(db.Integer, default=0)
+
+    # Relationships
+    item = db.relationship('ShopItem')
+    user = db.relationship('User', backref=db.backref('inventory', lazy='dynamic'))
+
+    def __repr__(self):
+        return f'<UserItem User:{self.user_id} Item:{self.item_id} Qty:{self.quantity}>'

@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../static/css/landing_style.css">
 </head>
 <body>
@@ -15,7 +16,8 @@
         <nav class="nav-links">
             <a href="#features">Features</a>
             <a href="#how">How It Works</a>
-            <a href="#about">About</a>
+            <a href="#faq">FAQ</a>
+            <a href="#cta">Get Started</a>
             <div class="nav-buttons">
                 <button class="btn-primary btn-nav" onclick="window.location.href='/register'">Start Learning</button>
                 <button class="btn-login btn-nav" onclick="window.location.href='/login'">Login</button>
@@ -114,10 +116,98 @@
         </div>
     </section>
 
-    <section class="cta-section">
-        <h2>Ready to Start Your Journey?</h2>
-        <p>Join thousands of learners mastering sign language through interactive practice</p>
-        <button class="btn-white" onclick="startLearning()" onclick="window.location.href='/register'">Get Started Free</button>
+    <section class="faq-section" id="faq">
+        <div class="section-header">
+            <h2>Frequently Asked <span class="highlight">Questions</span></h2>
+            <p>Everything you need to know about SignLingo</p>
+        </div>
+
+        <div class="faq-container">
+            <div class="faq-illustration">
+                <div class="illustration-bg"></div>
+                <div class="illustration-content">
+                    <div class="camera-device">
+                        <div class="camera-screen">
+                            <div class="scan-effect"></div>
+                            <div class="recognition-dots dot-1"></div>
+                            <div class="recognition-dots dot-2"></div>
+                            <div class="recognition-dots dot-3"></div>
+                            <div class="recognition-dots dot-4"></div>
+                            <div class="hand-gesture">✋</div>
+                            <div class="accuracy-badge">98% ✓</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-content">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h3>Is SignLingo free to use?</h3>
+                        <div class="faq-icon-wrapper">
+                            <i class="fas fa-chevron-down faq-icon"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Yes! The core learning curriculum is completely free and accessible to everyone. We believe in removing financial barriers to education. For users who want an ad-free experience and access to advanced features, we offer a premium subscription at IDR 49,900/month.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h3>How does the AI feedback system work?</h3>
+                        <div class="faq-icon-wrapper">
+                            <i class="fas fa-chevron-down faq-icon"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Our proprietary AI uses your device's camera to analyze your signing in real-time. As you practice, our hybrid CNN-LSTM model (with 95.30% accuracy) compares your hand movements to the correct sign and provides immediate feedback on your accuracy, helping you improve with every practice session.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h3>Do I need any prior experience to start learning?</h3>
+                        <div class="faq-icon-wrapper">
+                            <i class="fas fa-chevron-down faq-icon"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Not at all! SignLingo is designed for learners of all levels. Our structured curriculum starts with the basics and gradually progresses to advanced signs. Whether you're a complete beginner or looking to improve your existing skills, our adaptive learning system adjusts to your pace.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <h3>How is SignLingo different from watching video tutorials?</h3>
+                        <div class="faq-icon-wrapper">
+                            <i class="fas fa-chevron-down faq-icon"></i>
+                        </div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            <p>Unlike passive video tutorials, SignLingo provides active, interactive learning. You don't just watch—you practice with your camera and receive real-time AI feedback on your technique. This interactive feedback loop helps you truly master signs, not just memorize them.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section" id="cta">
+        <div class="cta-content">
+            <h2>Ready to Start Your Journey?</h2>
+            <p>Join thousands of learners mastering sign language through interactive practice.</p>
+            <button class="btn-cta" onclick="window.location.href='/register'">
+                Get Started Free <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
     </section>
 
     <footer>
