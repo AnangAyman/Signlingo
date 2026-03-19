@@ -1125,16 +1125,64 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from flask import request, jsonify, render_template, Blueprint
-from tensorflow.keras.models import load_model
+import h5py, json
 
-# Load CNN-LSTM model
-MODEL_PATH = 'models/EfficientNet Model.h5'
-model = load_model(MODEL_PATH)
+# Load bisindo static (MediaPipe keypoint) model.
+# The model was saved with a newer Keras that includes a `quantization_config` field
+# and a DTypePolicy dtype format — both incompatible with the Docker container's Keras.
+# Solution: manually rebuild the exact Sequential architecture and load weights directly.
+MODEL_PATH = 'models/bisindo_static_model.h5'
 
-# Class labels
+def _build_bisindo_model():
+    """Rebuild bisindo_static_model architecture manually and load weights from h5.
+    Architecture (from model_config): input=63 → Dense(256,relu) → BN → Dropout(0.4)
+    → Dense(128,relu) → BN → Dropout(0.3) → Dense(64,relu) → Dropout(0.2) → Dense(26,softmax)
+    """
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense, Dropout, BatchNormalization, Input
+
+    m = Sequential([
+        Input(shape=(126,)),
+        Dense(256, activation='relu'),
+        BatchNormalization(momentum=0.99, epsilon=0.001),
+        Dropout(0.4),
+        Dense(128, activation='relu'),
+        BatchNormalization(momentum=0.99, epsilon=0.001),
+        Dropout(0.3),
+        Dense(64, activation='relu'),
+        Dropout(0.2),
+        Dense(26, activation='softmax'),
+    ])
+    m.compile(optimizer='adam', loss='categorical_crossentropy')
+
+    # Load weights layer-by-layer from the h5 file's model_weights group
+    with h5py.File(MODEL_PATH, 'r') as f:
+        wg = f['model_weights']
+        layer_names = [n.decode('utf-8') if isinstance(n, bytes) else n
+                       for n in wg.attrs.get('layer_names', [])]
+        keras_layers = [l for l in m.layers if l.weights]
+        ki = 0
+        for ln in layer_names:
+            if ln not in wg:
+                continue
+            grp = wg[ln]
+            wnames = [n.decode('utf-8') if isinstance(n, bytes) else n
+                      for n in grp.attrs.get('weight_names', [])]
+            weights = [grp[wn][()] for wn in wnames]
+            if weights and ki < len(keras_layers):
+                keras_layers[ki].set_weights(weights)
+                ki += 1
+    return m
+
+try:
+    model = _build_bisindo_model()
+except Exception as e:
+    raise RuntimeError(f"Failed to load bisindo_static_model: {e}")
+
+# Class labels (A–Z)
 CLASSES = [chr(i) for i in range(ord('A'), ord('Z') + 1)]
 
-# Mediapipe hand detector setup
+# MediaPipe hand detector setup
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 hands_detector = mp_hands.Hands(
@@ -1143,15 +1191,30 @@ hands_detector = mp_hands.Hands(
     min_detection_confidence=0.3
 )
 
-# Image preprocessing
-def preprocess_image(arr: np.ndarray, target_size=(224,224)) -> np.ndarray:
-    # Resize, preprocess, add batch & sequence dims
-    img = cv2.resize(arr, target_size)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = tf.keras.applications.efficientnet.preprocess_input(img)
-    img = np.expand_dims(img, axis=0)   # batch
-    img = np.expand_dims(img, axis=1)   # sequence
-    return img
+def normalize_landmarks(landmarks: np.ndarray) -> np.ndarray:
+    """Normalize landmarks relative to wrist (index 0) and hand scale.
+    Matches the normalization applied during bisindo_static_model training."""
+    wrist = landmarks[0].copy()
+    landmarks = landmarks - wrist
+    scale = np.linalg.norm(landmarks[9])  # middle finger MCP
+    if scale > 0:
+        landmarks = landmarks / scale
+    return landmarks
+
+def extract_keypoints(hand_landmarks_list) -> np.ndarray:
+    """Flatten up to 2 hands × 21 landmarks × 3 coords into a (1, 126) array.
+    Each hand is normalized (wrist-relative + scale) before flattening.
+    Missing second hand is zero-padded."""
+    keypoints = []
+    for i in range(2):
+        if i < len(hand_landmarks_list):
+            lms = hand_landmarks_list[i].landmark
+            arr = np.array([[lm.x, lm.y, lm.z] for lm in lms], dtype=np.float32)
+            arr = normalize_landmarks(arr)
+            keypoints.extend(arr.flatten().tolist())
+        else:
+            keypoints.extend([0.0] * (21 * 3))  # zero-pad missing hand
+    return np.array(keypoints, dtype=np.float32).reshape(1, 126)
 
 # Decode model prediction
 def decode_prediction(pred: np.ndarray) -> str:
@@ -1174,43 +1237,36 @@ def predict():
     nparr = np.frombuffer(data, np.uint8)
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-    # Detect hands
+    # Detect hands with MediaPipe
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = hands_detector.process(rgb)
     if not results.multi_hand_landmarks:
         return jsonify({'error': 'No hand detected'}), 400
 
-    # Combine landmarks of both hands into one bounding box
+    # Draw debug overlay (bounding box + landmarks)
     h, w, _ = frame.shape
+    debug_frame = frame.copy()
     all_xs, all_ys = [], []
     for hand_landmarks in results.multi_hand_landmarks:
         all_xs.extend([lm.x for lm in hand_landmarks.landmark])
         all_ys.extend([lm.y for lm in hand_landmarks.landmark])
-    xmin, xmax = int(min(all_xs) * w), int(max(all_xs) * w)
-    ymin, ymax = int(min(all_ys) * h), int(max(all_ys) * h)
-    margin = 20
-    xmin, ymin = max(0, xmin - margin), max(0, ymin - margin)
-    xmax, ymax = min(w, xmax + margin), min(h, ymax + margin)
-
-    # Crop combined region
-    crop = frame[ymin:ymax, xmin:xmax]
-    if crop.size == 0:
-        return jsonify({'error': 'Invalid crop'}), 400
-
-    # Draw debug overlay
-    debug_frame = frame.copy()
-    cv2.rectangle(debug_frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
-    for hand_landmarks in results.multi_hand_landmarks:
         mp_drawing.draw_landmarks(debug_frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+    xmin = max(0, int(min(all_xs) * w) - 20)
+    ymin = max(0, int(min(all_ys) * h) - 20)
+    xmax = min(w, int(max(all_xs) * w) + 20)
+    ymax = min(h, int(max(all_ys) * h) + 20)
+    cv2.rectangle(debug_frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
 
     # Save debug images
     debug_crop_path = os.path.join("static/uploads", 'last_crop.jpg')
     debug_overlay_path = os.path.join("static/uploads", 'last_debug.jpg')
-    cv2.imwrite(debug_crop_path, crop)
+    crop = frame[ymin:ymax, xmin:xmax]
+    if crop.size > 0:
+        cv2.imwrite(debug_crop_path, crop)
     cv2.imwrite(debug_overlay_path, debug_frame)
 
-    # Preprocess and predict
-    input_tensor = preprocess_image(crop)
+    # Extract keypoints and predict (bisindo_static_model takes 126 landmark values)
+    input_tensor = extract_keypoints(results.multi_hand_landmarks)
     pred = model.predict(input_tensor)
     letter = decode_prediction(pred)
 
