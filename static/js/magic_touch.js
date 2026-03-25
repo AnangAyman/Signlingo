@@ -25,9 +25,9 @@ let enemySpeed = 0.6;
 
 // Debounce & Cooldown variables
 let consecutiveFrames = 0;
-let currentExpectedLetter = null;
+let currentPredictedLetter = null;
 let cooldownActive = false;
-const DEBOUNCE_THRESHOLD = 3; // Must hold for 5 consecutive frames
+const DEBOUNCE_THRESHOLD = 2; // Must hold for 5 consecutive frames
 const CONFIDENCE_THRESHOLD = 0.70;
 const COOLDOWN_MS = 0;
 
@@ -170,9 +170,6 @@ function gameLoop() {
         }
     }
 
-    // Automatically update the AI expectation to track the lowest enemy's first letter
-    updateExpectedLetter();
-
     gameLoopRef = requestAnimationFrame(gameLoop);
 }
 
@@ -279,18 +276,36 @@ function handlePrediction(letter, confidence) {
     // 1. If we recently popped an item, ignore inputs during transition cooldown
     if (cooldownActive) return;
 
-    // 2. We skip if there are no expected letters
-    if (!currentExpectedLetter) return;
+    // 2. Find if the currently predicted letter matches the first balloon of ANY enemy
+    let targetEnemy = null;
+    let highestY = -Infinity;
+
+    for (let i = 0; i < enemies.length; i++) {
+        let e = enemies[i];
+        if (e.balloons.length > 0 && e.balloons[0].letter === letter) {
+            if (e.y > highestY) {
+                highestY = e.y;
+                targetEnemy = e;
+            }
+        }
+    }
 
     // 3. Debouncing Logic
-    if (letter === currentExpectedLetter && confidence > CONFIDENCE_THRESHOLD) {
-        consecutiveFrames++;
+    if (targetEnemy && confidence > CONFIDENCE_THRESHOLD) {
+        if (letter === currentPredictedLetter) {
+            consecutiveFrames++;
+        } else {
+            currentPredictedLetter = letter;
+            consecutiveFrames = 1;
+        }
+
         if (consecutiveFrames >= DEBOUNCE_THRESHOLD) {
             // Detected solidly! Register attack.
-            registerHit();
+            registerHit(targetEnemy);
 
             // Immediately reset frame tracking
             consecutiveFrames = 0;
+            currentPredictedLetter = null;
 
             // Set cooldown to give player time to switch hands to the next sign
             cooldownActive = true;
@@ -301,49 +316,36 @@ function handlePrediction(letter, confidence) {
     } else {
         // Immediate reset on wrong guess or low confidence
         consecutiveFrames = 0;
+        currentPredictedLetter = null;
     }
 }
 
-function registerHit() {
-    // Find our target enemy again (same logic as expectation updater)
-    let lowestEnemy = null;
-    let highestY = -Infinity;
+function registerHit(targetEnemy) {
+    playSound(popSound);
 
-    for (let i = 0; i < enemies.length; i++) {
-        let e = enemies[i];
-        if (e.y > highestY && e.balloons.length > 0) {
-            highestY = e.y;
-            lowestEnemy = e;
+    let poppedBalloon = targetEnemy.balloons.shift(); // take the first balloon out
+
+    // CSS pop class applies a zoom-out fade animation
+    poppedBalloon.element.classList.add('popping');
+    setTimeout(() => {
+        if (poppedBalloon.element.parentNode) {
+            poppedBalloon.element.parentNode.removeChild(poppedBalloon.element);
         }
-    }
+    }, 200);
 
-    if (lowestEnemy) {
-        playSound(popSound);
+    // Award point for the pop
+    score += 10;
+    updateScoreUI();
 
-        let poppedBalloon = lowestEnemy.balloons.shift(); // take the first balloon out
+    // If that was their last balloon, enemy drops
+    if (targetEnemy.balloons.length === 0) {
+        targetEnemy.element.classList.add('falling');
+        // Give them extreme dropping speed so they fall off map, giving score
+        targetEnemy.speed += 15;
+        targetEnemy.isDefeated = true;
 
-        // CSS pop class applies a zoom-out fade animation
-        poppedBalloon.element.classList.add('popping');
-        setTimeout(() => {
-            if (poppedBalloon.element.parentNode) {
-                poppedBalloon.element.parentNode.removeChild(poppedBalloon.element);
-            }
-        }, 200);
-
-        // Award point for the pop
-        score += 10;
+        // Bonus points for fully defeating enemy (bosses give more)
+        score += targetEnemy.isBoss ? 50 : 10;
         updateScoreUI();
-
-        // If that was their last balloon, enemy drops
-        if (lowestEnemy.balloons.length === 0) {
-            lowestEnemy.element.classList.add('falling');
-            // Give them extreme dropping speed so they fall off map, giving score
-            lowestEnemy.speed += 15;
-            lowestEnemy.isDefeated = true;
-
-            // Bonus points for fully defeating enemy (bosses give more)
-            score += lowestEnemy.isBoss ? 50 : 10;
-            updateScoreUI();
-        }
     }
 }
