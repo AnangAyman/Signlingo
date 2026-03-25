@@ -1268,13 +1268,26 @@ def predict():
     # Extract keypoints and predict (bisindo_static_model takes 126 landmark values)
     input_tensor = extract_keypoints(results.multi_hand_landmarks)
     pred = model.predict(input_tensor)
+    confidence = float(np.max(pred))
     letter = decode_prediction(pred)
 
-    print(pred)
+    print(f"Prediction: {letter}, Confidence: {confidence}")
     session["today_login"] = True
 
     return jsonify({
         'result': letter,
+        'confidence': confidence,
         'debug_crop_url': '/' + debug_crop_path,
         'debug_overlay_url': '/' + debug_overlay_path
     })
+
+
+@auth_bp.route('/magic_touch', methods=['GET', 'POST'])
+def magic_touch():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash('Please log in to play Magic Touch.', 'warning')
+        return redirect(url_for('auth.login'))
+        
+    user = User.query.get(user_id)
+    return render_template("magic_touch_game.html", user=user)
