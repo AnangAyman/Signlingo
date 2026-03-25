@@ -98,11 +98,11 @@ function scheduleSpawn() {
 function spawnEnemy() {
     // Determine type: 80% Grunt (1 letter), 20% Boss (3 to 5 letters)
     let isBoss = Math.random() < 0.2;
-    let wordLength = isBoss ? Math.floor(Math.random() * 3) + 3 : 1;
+    let wordLength = isBoss ? Math.floor(Math.random() * 3) + 2 : 1;
     let word = "";
+    const allowedLetters = "ABCDEFHIJLMOPQRSTUVWXZ"; // All letters except Y, G, K, N
     for (let i = 0; i < wordLength; i++) {
-        // Random A-Z
-        word += String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        word += allowedLetters.charAt(Math.floor(Math.random() * allowedLetters.length));
     }
 
     const enemyEl = document.createElement('div');
