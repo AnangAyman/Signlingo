@@ -105,41 +105,48 @@ function scheduleSpawn() {
         if (waveCount > 30) {
             // After wave 30, small chance for 3 enemies, mostly 1 or 2
             let roll = Math.random();
-            if (roll > 0.85) enemiesToSpawn = 3; // Only 15% chance for 3
+            if (roll > 0.85) enemiesToSpawn = 3; 
             else if (roll > 0.4) enemiesToSpawn = 2;
             else enemiesToSpawn = 1;
         }
         
         for (let i = 0; i < enemiesToSpawn; i++) {
-            // Increased stagger from 800ms to 1200ms so they drop further apart vertically
             setTimeout(() => {
                 if (isPlaying) {
-                    let safeX = getValidSpawnX();
-                    spawnEnemy(safeX);
+                    // Decide if it's a boss FIRST so we know how much space it needs
+                    let bossChance = waveCount > 5 ? Math.min(0.25, (waveCount - 5) * 0.02) : 0;
+                    let isBoss = Math.random() < bossChance;
+                    
+                    let safeX = getValidSpawnX(isBoss);
+                    spawnEnemy(safeX, isBoss);
                 }
             }, i * 1200); 
         }
         
         difficultyMultiplier += 0.05; 
-        // Slightly slower speed acceleration
         enemySpeed = Math.min(2.0, enemySpeed + 0.015);
 
         scheduleSpawn();
     }, spawnRate);
 }
 
-// --- ANTI-OVERLAP LOGIC ---
-function getValidSpawnX() {
+// Logic to avoid overlap between enemies
+function getValidSpawnX(isBoss) {
     let attempts = 0;
-    let minDistance = 18; 
+    // Bosses are wider, so they need a larger safe zone (28% of screen)
+    let myRequiredSpace = isBoss ? 28 : 18; 
 
-    while (attempts < 20) {
-        let testX = Math.random() * 70 + 15; 
+    while (attempts < 50) {
+        // Keep spawns safely away from the extreme left/right walls
+        let testX = Math.random() * (100 - myRequiredSpace - 10) + 10; 
         let hasConflict = false;
 
         for (let e of enemies) {
-            if (e.y < 300) { 
-                if (Math.abs(e.x - testX) < minDistance) {
+            if (e.y < 450) { 
+                // Enforce the largest required safe zone between the two enemies
+                let checkDistance = e.isBoss || isBoss ? 28 : 18;
+                
+                if (Math.abs(e.x - testX) < checkDistance) {
                     hasConflict = true;
                     break;
                 }
@@ -152,13 +159,12 @@ function getValidSpawnX() {
         attempts++;
     }
     
-    return Math.random() * 70 + 15; 
+    // Fallback if the screen gets too crowded
+    return Math.random() * 60 + 20; 
 }
 
-function spawnEnemy(startX) {
-    let bossChance = waveCount > 5 ? Math.min(0.25, (waveCount - 5) * 0.02) : 0;
-    let isBoss = Math.random() < bossChance;
-    
+function spawnEnemy(startX, isBoss) {
+    // Boss calculation is now handled in scheduleSpawn
     let wordLength = isBoss ? Math.floor(Math.random() * 3) + 2 : 1;
     let word = "";
     const allowedLetters = "ABCDEFHIJLMOPQRSTUVWXZ"; 
@@ -372,7 +378,6 @@ function handlePrediction(letter, confidence) {
 function registerHit(targetEnemy, balloonIndex) {
     playSound(popSound);
 
-    // Remove the SPECIFIC balloon from the array, not just the first one
     let poppedBalloonArray = targetEnemy.balloons.splice(balloonIndex, 1); 
     let poppedBalloon = poppedBalloonArray[0];
 
@@ -383,7 +388,8 @@ function registerHit(targetEnemy, balloonIndex) {
         }
     }, 200);
 
-    let pointsEarned = Math.floor(10 * targetEnemy.pointValueMultiplier);
+    // Base points per balloon popped
+    let pointsEarned = Math.floor(2 * targetEnemy.pointValueMultiplier);
     score += pointsEarned;
     updateScoreUI();
 
@@ -392,7 +398,8 @@ function registerHit(targetEnemy, balloonIndex) {
         targetEnemy.speed += 15;
         targetEnemy.isDefeated = true;
 
-        let baseBonus = targetEnemy.isBoss ? 50 : 10;
+        // Bosses give 25 instead of 50, normal give 5 instead of 10
+        let baseBonus = targetEnemy.isBoss ? 25 : 5;
         let bonusEarned = Math.floor(baseBonus * targetEnemy.pointValueMultiplier);
         score += bonusEarned;
         
