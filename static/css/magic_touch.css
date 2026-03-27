@@ -215,24 +215,33 @@ body {
     transform: scaleX(-1); 
 }
 
-.prediction-overlay {
+/* Live Prediction Badge */
+.prediction-badge {
     position: absolute;
-    bottom: 8px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(45, 45, 45, 0.85);
-    color: var(--white);
-    padding: 4px 16px;
-    border-radius: 12px;
+    background: var(--white);
+    color: var(--neutral-dark);
+    padding: 10px 32px;
+    border-radius: 30px;
     font-family: 'Poppins', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 600;
-    transition: background 0.3s ease;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: 3px solid var(--border);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    z-index: 20;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-width: 120px;
 }
 
-.prediction-overlay.confident {
+.prediction-badge.confident {
     background: var(--accent);
     color: var(--neutral-dark);
+    border-color: var(--accent);
+    box-shadow: 0 6px 16px rgba(166, 226, 46, 0.4);
+    transform: translateX(-50%) scale(1.05); 
 }
 
 /* Enemies */
