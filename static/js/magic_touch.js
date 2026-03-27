@@ -15,11 +15,13 @@ const hurtSound = document.getElementById('hurt-sound');
 const currentPredictionEl = document.getElementById('current-prediction');
 
 let isPlaying = false;
+let isPaused = false; // NEW: Track if the game is paused
 let score = 0;
 let lives = 5;
 let enemies = [];
 let spawnInterval;
 let gameLoopRef;
+let predictTimeout;
 
 // Progression Variables
 let spawnRate = 4000;         // Stays firmly at 4 seconds
@@ -57,8 +59,31 @@ if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
 if (startBtn) startBtn.addEventListener('click', startGame);
 if (restartBtn) restartBtn.addEventListener('click', startGame);
 
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden && isPlaying && !isPaused) {
+        pauseGame();
+    } else if (!document.hidden && isPlaying && isPaused) {
+        resumeGame();
+    }
+});
+
+function pauseGame() {
+    isPaused = true;
+    clearTimeout(spawnInterval);
+    clearTimeout(predictTimeout);
+    cancelAnimationFrame(gameLoopRef);
+}
+
+function resumeGame() {
+    isPaused = false;
+    scheduleSpawn();
+    gameLoopRef = requestAnimationFrame(gameLoop);
+    predictLoop();
+}
+
 function startGame() {
     isPlaying = true;
+    isPaused = false;
     score = 0;
     lives = 5;
     enemies.forEach(e => { if (e.element) e.element.remove(); });
@@ -84,14 +109,17 @@ function startGame() {
 
 function stopGame() {
     isPlaying = false;
+    isPaused = false; // Reset pause state
     clearTimeout(spawnInterval);
+    clearTimeout(predictTimeout); // Clear prediction timeout
     cancelAnimationFrame(gameLoopRef);
     finalScoreEl.innerText = score;
     gameOverScreen.style.display = 'flex';
 }
 
 function scheduleSpawn() {
-    if (!isPlaying) return;
+    if (!isPlaying || isPaused) return; // Guard against paused state
+
     spawnInterval = setTimeout(() => {
         waveCount++;
         
@@ -109,7 +137,8 @@ function scheduleSpawn() {
         
         for (let i = 0; i < enemiesToSpawn; i++) {
             setTimeout(() => {
-                if (isPlaying) {
+                // Check pause state again inside the delayed stagger
+                if (isPlaying && !isPaused) {
                     let bossChance = waveCount > 5 ? Math.min(0.25, (waveCount - 5) * 0.02) : 0;
                     let isBoss = Math.random() < bossChance;
                     
@@ -128,10 +157,9 @@ function scheduleSpawn() {
     }, spawnRate);
 }
 
-// Logic to avoid overlap between enemies
+// Logic to prevent overlap when spawn
 function getValidSpawnX(isBoss) {
     let attempts = 0;
-    // Bosses need a massive 30% width safe zone
     let myRequiredSpace = isBoss ? 30 : 16; 
 
     while (attempts < 50) {
@@ -155,13 +183,11 @@ function getValidSpawnX(isBoss) {
         attempts++;
     }
     
-    // Instead of forcing a bad spawn, return null
     return null; 
 }
 
 function spawnEnemy(startX, isBoss) {
     let wordLength = isBoss ? 2 : 1;
-    
     let word = "";
     const allowedLetters = "ABCDEFHIJLMOPQRSTUVWXZ"; 
     for (let i = 0; i < wordLength; i++) {
@@ -227,7 +253,7 @@ function spawnEnemy(startX, isBoss) {
 }
 
 function gameLoop() {
-    if (!isPlaying) return;
+    if (!isPlaying || isPaused) return; // Guard against paused state
 
     for (let i = enemies.length - 1; i >= 0; i--) {
         let e = enemies[i];
@@ -299,15 +325,15 @@ function updateLivesUI() {
     }
 }
 
-// --- Frame by Frame AI Processing Loop ---
+// Frame by Frame AI Processing Loop
 async function predictLoop() {
-    if (!isPlaying) return;
+    if (!isPlaying || isPaused) return; // Guard against paused state
 
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
 
     if (!blob) {
-        requestAnimationFrame(predictLoop);
+        if (isPlaying && !isPaused) predictTimeout = setTimeout(predictLoop, 50);
         return;
     }
 
@@ -324,10 +350,14 @@ async function predictLoop() {
         console.error("Prediction error", e);
     }
 
-    setTimeout(predictLoop, 50);
+    if (isPlaying && !isPaused) {
+        predictTimeout = setTimeout(predictLoop, 50); // Assigned to predictTimeout
+    }
 }
 
 function handlePrediction(letter, confidence) {
+    if (!isPlaying || isPaused) return; // Ignore AI guesses if paused
+
     const cfPercent = Math.round(confidence * 100);
     if (currentPredictionEl) {
         currentPredictionEl.innerText = `${letter} (${cfPercent}%)`;
@@ -342,13 +372,12 @@ function handlePrediction(letter, confidence) {
     if (cooldownActive) return;
 
     let targetEnemy = null;
-    let targetBalloonIndex = -1; // We now track specifically WHICH balloon matched
+    let targetBalloonIndex = -1; 
     let highestY = -Infinity;
 
     for (let i = 0; i < enemies.length; i++) {
         let e = enemies[i];
         
-        // Search ALL balloons on the enemy for a match, regardless of order
         let matchIndex = e.balloons.findIndex(b => b.letter === letter);
         
         if (matchIndex !== -1) {
@@ -369,7 +398,6 @@ function handlePrediction(letter, confidence) {
         }
 
         if (consecutiveFrames >= DEBOUNCE_THRESHOLD) {
-            // Pass the exact index of the balloon to be popped
             registerHit(targetEnemy, targetBalloonIndex);
 
             consecutiveFrames = 0;
