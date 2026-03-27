@@ -160,7 +160,8 @@ function getValidSpawnX(isBoss) {
 }
 
 function spawnEnemy(startX, isBoss) {
-    let wordLength = isBoss ? Math.floor(Math.random() * 3) + 2 : 1;
+    let wordLength = isBoss ? 2 : 1;
+    
     let word = "";
     const allowedLetters = "ABCDEFHIJLMOPQRSTUVWXZ"; 
     for (let i = 0; i < wordLength; i++) {
