@@ -1282,7 +1282,7 @@ def predict():
     })
 
 
-@auth_bp.route('/magic_touch', methods=['GET', 'POST'])
+@auth_bp.route('/magic-touch', methods=['GET', 'POST'])
 def magic_touch():
     user_id = session.get('user_id')
     if not user_id:
