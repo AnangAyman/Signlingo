@@ -20,7 +20,27 @@
     
     <div class="game-page-wrapper">
         <div class="game-container" id="game-container">
-            <!-- UI Header -->
+            
+            <div class="menu-screen" id="start-screen">
+                <div class="menu-content">
+                    <div class="module-badge mb-3">Minigame</div>
+                    <h1>Magic Touch</h1>
+                    <p>Enemies are falling! Sign the letters to pop their balloons before they reach the ground.</p>
+                    <button class="primary-button mt-2" id="start-game-btn">Play Now</button>
+                </div>
+            </div>
+            
+            <div class="menu-screen" id="game-over-screen" style="display: none;">
+                <div class="menu-content">
+                    <h1>Game Over</h1>
+                    <p class="final-score-text">Final Score: <span id="final-score">0</span></p>
+                    <div class="d-flex flex-column gap-3 align-items-center mt-4">
+                        <button class="primary-button w-100" id="restart-game-btn">Play Again</button>
+                        <button class="secondary-button w-100" onclick="window.location.href='{{ url_for('auth.dashboard') }}'">Return to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="game-ui-header">
                 <div class="score-container">
                     <span class="score-label">SCORE</span>
@@ -30,34 +50,14 @@
                     <i class="fa-solid fa-heart life-icon"></i>
                     <i class="fa-solid fa-heart life-icon"></i>
                     <i class="fa-solid fa-heart life-icon"></i>
+                    <i class="fa-solid fa-heart life-icon"></i>
+                    <i class="fa-solid fa-heart life-icon"></i>
                 </div>
             </div>
 
-            <!-- Start Screen Overlay -->
-            <div class="overlay-screen" id="start-screen">
-                <div class="overlay-content">
-                    <h1>Magic Touch</h1>
-                    <p>Enemies are falling! Sign the letters to pop their balloons.</p>
-                    <button class="primary-button" id="start-game-btn">Play Now</button>
-                </div>
-            </div>
-            
-            <!-- Game Over Screen Overlay -->
-            <div class="overlay-screen" id="game-over-screen" style="display: none;">
-                <div class="overlay-content">
-                    <h1>Game Over</h1>
-                    <p>Final Score: <span id="final-score">0</span></p>
-                    <button class="primary-button" id="restart-game-btn">Play Again</button>
-                    <button class="secondary-button mt-3" onclick="window.location.href='{{ url_for('auth.dashboard') }}'">Return to Dashboard</button>
-                </div>
-            </div>
-
-            <!-- The Game Area where enemies drop -->
             <div class="game-area" id="game-area">
-                <!-- Enemies will be dynamically added here via JS -->
-            </div>
+                </div>
 
-            <!-- Webcam Feed (bottom right) -->
             <div class="webcam-container">
                 <video id="webcam" autoplay playsinline muted></video>
                 <div class="prediction-overlay" id="current-prediction">-</div>
@@ -67,7 +67,6 @@
         </div>
     </div>
 
-    <!-- Sounds -->
     <audio id="pop-sound" src="{{ url_for('static', filename='sounds/correct.mp3') }}" preload="auto"></audio>
     <audio id="hurt-sound" src="{{ url_for('static', filename='sounds/incorrect.mp3') }}" preload="auto"></audio>
 

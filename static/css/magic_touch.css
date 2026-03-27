@@ -1,8 +1,6 @@
 /* magic_touch.css */
 body {
-    background-color: #1a1a2e;
-    color: #fff;
-    overflow: hidden; /* Prevent scrolling in game mode */
+    overflow: hidden; 
 }
 
 .game-page-wrapper {
@@ -10,20 +8,86 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    padding: 20px;
+    padding: var(--space-l);
+    box-sizing: border-box;
 }
 
 .game-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 800px; /* Constrained width is crucial for webcam tracking */
     height: 80vh;
-    background: linear-gradient(135deg, #16213e, #0f3460);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    min-height: 600px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--card-shadow);
     position: relative;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+}
+
+/* Match the global back button style */
+.back-button {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: var(--white);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    color: var(--neutral-dark);
+}
+
+.back-button:hover {
+    background-color: var(--primary);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 194, 203, 0.3);
+    color: var(--white);
+}
+
+/* Menu Screens (Start & Game Over) */
+.menu-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--white); /* Solid white instead of transparent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.menu-content {
+    text-align: center;
+    max-width: 450px;
+    padding: var(--space-xl);
+}
+
+.menu-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-m);
+    color: var(--neutral-dark);
+}
+
+.menu-content p {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-xl);
+    color: #6B7280;
+    line-height: 1.6;
+}
+
+.final-score-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem !important;
+    color: var(--primary) !important;
 }
 
 /* UI Header */
@@ -31,25 +95,30 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 30px;
-    background: rgba(0, 0, 0, 0.3);
+    padding: var(--space-m) var(--space-xl);
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
     z-index: 10;
 }
 
 .score-container {
     font-size: 1.5rem;
+    font-family: 'Poppins', sans-serif;
     font-weight: 700;
+    color: var(--neutral-dark);
 }
 
 .score-label {
-    font-size: 1rem;
-    color: #e94560;
+    font-size: 0.9rem;
+    color: #6B7280;
     margin-right: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .lives-container {
     font-size: 1.5rem;
-    color: #e94560;
+    color: var(--secondary);
     display: flex;
     gap: 10px;
 }
@@ -64,62 +133,56 @@ body {
     100% { transform: scale(1); }
 }
 
-/* Overlays */
-.overlay-screen {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(22, 33, 62, 0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-}
-
-.overlay-content {
-    text-align: center;
-}
-
-.overlay-content h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-    color: #fff;
-    text-shadow: 0 0 10px #e94560;
-}
-
-.overlay-content p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    color: #ddd;
-}
-
+/* Buttons */
 .primary-button {
-    background: #e94560;
-    color: #fff;
+    background: var(--primary);
+    color: var(--white);
     border: none;
-    padding: 15px 40px;
-    font-size: 1.2rem;
+    padding: 14px 40px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
     font-weight: 600;
-    border-radius: 30px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 194, 203, 0.2);
 }
 
 .primary-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
+    box-shadow: 0 6px 16px rgba(0, 194, 203, 0.3);
+    background: #00A8B3;
 }
 
 .secondary-button {
-    background: transparent;
-    color: #fff;
-    border: 2px solid #fff;
-    padding: 10px 20px;
-    border-radius: 30px;
+    background: var(--white);
+    color: var(--neutral-dark);
+    border: 2px solid var(--border);
+    padding: 12px 40px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .secondary-button:hover {
-    background: rgba(255,255,255,0.1);
+    background: var(--neutral-light);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.module-badge {
+    display: inline-block;
+    background-color: var(--neutral-light);
+    color: var(--primary);
+    padding: 8px var(--space-m);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 /* Game Area */
@@ -127,45 +190,49 @@ body {
     position: relative;
     flex-grow: 1;
     overflow: hidden;
+    background-color: #F3F4F6; /* Slightly darker than pure white to let balloons pop */
 }
 
 /* Webcam Container */
 .webcam-container {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
+    bottom: 24px;
+    right: 24px;
+    width: 140px;
+    height: 140px;
+    border-radius: 16px; 
     overflow: hidden;
-    border: 3px solid #e94560;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    border: 3px solid var(--primary);
+    box-shadow: 0 4px 12px var(--card-shadow);
     z-index: 20;
+    background: var(--neutral-dark);
 }
 
 .webcam-container video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: scaleX(-1); /* Mirror */
+    transform: scaleX(-1); 
 }
 
 .prediction-overlay {
     position: absolute;
-    bottom: 10px;
+    bottom: 8px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    padding: 5px 15px;
-    border-radius: 15px;
-    font-size: 1.5rem;
-    font-weight: bold;
+    background: rgba(45, 45, 45, 0.85);
+    color: var(--white);
+    padding: 4px 16px;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: background 0.3s ease;
 }
 
 .prediction-overlay.confident {
-    background: #4caf50;
-    color: #000;
+    background: var(--accent);
+    color: var(--neutral-dark);
 }
 
 /* Enemies */
@@ -174,18 +241,17 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    will-change: transform; /* Performance optimization */
+    will-change: transform;
 }
 
-/* Character sprite (we use a simple CSS shape or icon) */
 .enemy-character {
     width: 40px;
     height: 40px;
-    background: #333;
+    background: var(--neutral-dark);
     border-radius: 50% 50% 10% 10%;
     position: relative;
     margin-top: 5px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .enemy-character::before {
@@ -195,13 +261,13 @@ body {
     width: 6px; height: 6px;
     background: #fff;
     border-radius: 50%;
-    box-shadow: 18px 0 0 #fff; /* Eyes */
+    box-shadow: 18px 0 0 #fff; 
 }
 
 .boss .enemy-character {
     width: 60px;
     height: 60px;
-    background: #5a2e5d; /* Boss color */
+    background: var(--primary); 
 }
 .boss .enemy-character::before {
     top: 15px; left: 15px;
@@ -216,26 +282,25 @@ body {
 }
 
 .balloon {
-    width: 35px;
-    height: 45px;
-    background: radial-gradient(circle at 30% 30%, #ff6b6b, #c0392b);
+    width: 38px;
+    height: 48px;
+    background: radial-gradient(circle at 30% 30%, var(--secondary), #E05244);
     border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
     font-size: 1.2rem;
-    color: #fff;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.3);
+    color: var(--white);
+    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
     transition: transform 0.1s;
 }
 
-/* Different balloon colors */
-.balloon:nth-child(2n) { background: radial-gradient(circle at 30% 30%, #4facfe, #00f2fe); }
-.balloon:nth-child(3n) { background: radial-gradient(circle at 30% 30%, #f6d365, #fda085); }
-.balloon:nth-child(4n) { background: radial-gradient(circle at 30% 30%, #43e97b, #38f9d7); }
+.balloon:nth-child(2n) { background: radial-gradient(circle at 30% 30%, var(--primary), #00A8B3); }
+.balloon:nth-child(3n) { background: radial-gradient(circle at 30% 30%, var(--gold), #E6C200); color: var(--neutral-dark); }
+.balloon:nth-child(4n) { background: radial-gradient(circle at 30% 30%, var(--accent), #8CBE26); color: var(--neutral-dark); }
 
 .balloon::after {
     content: '';
@@ -250,20 +315,17 @@ body {
     border-bottom: 5px solid currentColor;
 }
 
-/* String connecting balloon to character */
 .string {
-    width: 1px;
+    width: 2px;
     height: 20px;
-    background: #fff;
-    opacity: 0.5;
+    background: #D1D5DB; /* Light gray string */
     margin-top: -5px;
     z-index: -1;
 }
 
-/* Popping animation */
 @keyframes pop {
     0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.5); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 0.8; }
     100% { transform: scale(0); opacity: 0; }
 }
 
@@ -273,4 +335,23 @@ body {
 
 .enemy.falling {
     transition: top 0.3s ease-in;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .back-button {
+        top: 16px;
+        left: 16px;
+        width: 40px;
+        height: 40px;
+    }
+    .game-ui-header {
+        padding: var(--space-m);
+    }
+    .webcam-container {
+        width: 100px;
+        height: 100px;
+        bottom: 16px;
+        right: 16px;
+    }
 }
