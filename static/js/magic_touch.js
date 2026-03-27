@@ -325,14 +325,20 @@ function handlePrediction(letter, confidence) {
     if (cooldownActive) return;
 
     let targetEnemy = null;
+    let targetBalloonIndex = -1; // We now track specifically WHICH balloon matched
     let highestY = -Infinity;
 
     for (let i = 0; i < enemies.length; i++) {
         let e = enemies[i];
-        if (e.balloons.length > 0 && e.balloons[0].letter === letter) {
+        
+        // Search ALL balloons on the enemy for a match, regardless of order
+        let matchIndex = e.balloons.findIndex(b => b.letter === letter);
+        
+        if (matchIndex !== -1) {
             if (e.y > highestY) {
                 highestY = e.y;
                 targetEnemy = e;
+                targetBalloonIndex = matchIndex;
             }
         }
     }
@@ -346,7 +352,8 @@ function handlePrediction(letter, confidence) {
         }
 
         if (consecutiveFrames >= DEBOUNCE_THRESHOLD) {
-            registerHit(targetEnemy);
+            // Pass the exact index of the balloon to be popped
+            registerHit(targetEnemy, targetBalloonIndex);
 
             consecutiveFrames = 0;
             currentPredictedLetter = null;
@@ -362,10 +369,12 @@ function handlePrediction(letter, confidence) {
     }
 }
 
-function registerHit(targetEnemy) {
+function registerHit(targetEnemy, balloonIndex) {
     playSound(popSound);
 
-    let poppedBalloon = targetEnemy.balloons.shift(); 
+    // Remove the SPECIFIC balloon from the array, not just the first one
+    let poppedBalloonArray = targetEnemy.balloons.splice(balloonIndex, 1); 
+    let poppedBalloon = poppedBalloonArray[0];
 
     poppedBalloon.element.classList.add('popping');
     setTimeout(() => {

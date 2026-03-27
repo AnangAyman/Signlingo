@@ -327,7 +327,7 @@ body {
 .string {
     width: 2px;
     height: 20px;
-    background: #D1D5DB; /* Light gray string */
+    background: #D1D5DB;
     margin-top: -5px;
     z-index: -1;
 }
