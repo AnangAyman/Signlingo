@@ -190,7 +190,7 @@ body {
     position: relative;
     flex-grow: 1;
     overflow: hidden;
-    background-color: #F3F4F6; /* Slightly darker than pure white to let balloons pop */
+    background-color: #F3F4F6;
 }
 
 /* Webcam Container */
@@ -254,13 +254,15 @@ body {
 }
 
 .enemy-character {
-    width: 40px;
-    height: 40px;
+    width: 46px;
+    height: 42px;
     background: var(--neutral-dark);
-    border-radius: 50% 50% 10% 10%;
+    border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
     position: relative;
-    margin-top: 5px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    margin-top: -6px; 
+    box-shadow: inset -4px -6px 10px rgba(0,0,0,0.3), 0 6px 12px rgba(0,0,0,0.15);
+    animation: float-character 2s ease-in-out infinite;
+    z-index: 2;
 }
 
 .enemy-character::before {
@@ -274,10 +276,13 @@ body {
 }
 
 .boss .enemy-character {
-    width: 60px;
+    width: 64px;
     height: 60px;
-    background: var(--primary); 
+    background: var(--primary);
+    box-shadow: inset -6px -8px 12px rgba(0,0,0,0.2), 0 0 20px rgba(0, 194, 203, 0.6);
+    border-radius: 50% 50% 25% 25% / 60% 60% 40% 40%;
 }
+
 .boss .enemy-character::before {
     top: 15px; left: 15px;
     box-shadow: 24px 0 0 #fff;
@@ -288,6 +293,16 @@ body {
     display: flex;
     justify-content: center;
     gap: 5px;
+    margin: 0;
+    z-index: 1; 
+}
+
+.balloon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: bottom center; 
+    transition: transform 0.2s ease;
 }
 
 .balloon {
@@ -305,50 +320,32 @@ body {
     color: var(--white);
     box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
     transition: transform 0.1s;
+    margin: 0;
 }
 
 .balloon:nth-child(2n) { background: radial-gradient(circle at 30% 30%, var(--primary), #00A8B3); }
 .balloon:nth-child(3n) { background: radial-gradient(circle at 30% 30%, var(--gold), #E6C200); color: var(--neutral-dark); }
 .balloon:nth-child(4n) { background: radial-gradient(circle at 30% 30%, var(--accent), #8CBE26); color: var(--neutral-dark); }
 
-.balloon::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 3px solid transparent;
-    border-right: 3px solid transparent;
-    border-bottom: 5px solid currentColor;
-}
-
 .string {
     width: 2px;
-    height: 20px;
-    background: #D1D5DB;
-    margin-top: -5px;
-    z-index: -1;
+    height: 24px; /* Slightly longer string */
+    background: #9CA3AF; 
+    margin: 0; 
+    z-index: 1;
 }
 
-/* ============================================= */
-/* Popping Animation & Particle Explosion        */
-/* ============================================= */
-
-/* 1. The main balloon bulges up, then expands and fades out */
+/* Popping Animation & Particle Explosion */
 @keyframes pop {
     0%   { transform: scale(1); opacity: 1; }
-    30%  { transform: scale(1.4); opacity: 1; filter: brightness(1.2); } /* Bulge & flash */
-    100% { transform: scale(2.2); opacity: 0; filter: brightness(2); }   /* Expand and dissolve */
+    30%  { transform: scale(1.4); opacity: 1; filter: brightness(1.2); }
+    100% { transform: scale(2.2); opacity: 0; filter: brightness(2); }
 }
 
 .balloon.popping {
-    /* Timing perfectly matches the 200ms JS removal timeout */
     animation: pop 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
 }
 
-/* 2. 8-Way Particle Explosion using ::before */
 .balloon.popping::before {
     content: '';
     position: absolute;
@@ -364,7 +361,7 @@ body {
 }
 
 @keyframes explode {
-    0%, 30% { /* Stay hidden during the bulge phase */
+    0%, 30% {
         box-shadow: 
             0 0 0 transparent, 0 0 0 transparent, 
             0 0 0 transparent, 0 0 0 transparent,
@@ -372,7 +369,6 @@ body {
             0 0 0 transparent, 0 0 0 transparent;
     }
     100% {
-        /* Since the parent scales up to 2.2x, these offsets will look massive */
         box-shadow: 
             -30px -30px 0 var(--white),  30px -30px 0 var(--gold), 
             -30px  30px 0 var(--accent), 30px  30px 0 var(--secondary),
@@ -380,19 +376,16 @@ body {
             -45px   0px 0 var(--secondary),45px   0px 0 var(--accent);
     }
 }
-
-/* 3. Repurpose the balloon tie (::after) into an expanding shockwave ring! */
 .balloon.popping::after {
     content: '';
     position: absolute;
     top: 50%; 
     left: 50%;
-    bottom: auto !important; /* Overrides the tail positioning */
+    bottom: auto !important;
     width: 100%; 
     height: 100%;
     transform: translate(-50%, -50%);
     
-    /* Override the triangle borders to make a perfect circle */
     border-top: 4px solid rgba(255, 255, 255, 0.8) !important;
     border-left: 4px solid rgba(255, 255, 255, 0.8) !important;
     border-right: 4px solid rgba(255, 255, 255, 0.8) !important;
@@ -420,12 +413,11 @@ body {
 
 .enemy.falling {
     animation: defeat-spin 0.4s ease-in forwards;
-    /* Turn off the inner float animation so it doesn't look jittery while falling */
     pointer-events: none; 
 }
 
 .enemy.falling .enemy-character {
-    animation: none; /* Stops the bobbing up and down */
+    animation: none;
 }
 
 @keyframes defeat-spin {
