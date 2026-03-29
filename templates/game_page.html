@@ -19,9 +19,15 @@
         </svg>
     </button>
 
-    <div class="lives-display">
-        <i class="fas fa-heart"></i>
-        <span id="lives-count">{{user.lives}}</span>
+    <div class="top-right-stats">
+        <div class="xp-display" id="xp-badge">
+            <i class="fas fa-bolt" style="color: #FFA500;"></i>
+            <span id="xp-count">0 XP</span>
+        </div>
+        <div class="lives-display">
+            <i class="fas fa-heart" style="color: #ff4b4b;"></i>
+            <span id="lives-count">{{user.lives}}</span>
+        </div>
     </div>
     
     <div class="game-page-wrapper">
@@ -117,6 +123,7 @@
             </div>
         </div>
     </div>
+    
 
     <script src="{{ url_for('static', filename='js/game_logic.js') }}"></script>
 </body>

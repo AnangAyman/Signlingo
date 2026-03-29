@@ -7,6 +7,14 @@ const TOTAL_QUESTIONS = 10;
 const correctSound = document.getElementById('correct-sound');
 const incorrectSound = document.getElementById('incorrect-sound');
 
+if (document.referrer.includes('dashboard') || document.referrer.includes('video-learning')) {
+    sessionStorage.setItem('levelXP', 0);
+}
+
+// Set initial display
+let currentXP = parseInt(sessionStorage.getItem('levelXP') || 0);
+document.getElementById('xp-count').innerText = currentXP + ' XP';
+
 // --- Sound Helpers ---
 function playSound(soundElement) {
     if (soundElement) {
@@ -177,6 +185,16 @@ async function checkAnswer(selected, buttonElement) {
             buttonElement.style.background = 'var(--correct-bg)';
             buttonElement.style.borderColor = 'var(--correct-text)';
             playSound(correctSound);
+
+            let sessionXP = parseInt(sessionStorage.getItem('levelXP') || 0);
+            sessionXP += 10;
+            sessionStorage.setItem('levelXP', sessionXP);
+            document.getElementById('xp-count').innerText = sessionXP + ' XP';
+
+            // Optional: Add a quick pop animation to the badge
+            const xpBadge = document.querySelector('.xp-display');
+            xpBadge.style.transform = 'scale(1.1)';
+            setTimeout(() => xpBadge.style.transform = 'scale(1)', 200);
         } else {
             buttonElement.style.background = 'var(--incorrect-bg)';
             buttonElement.style.borderColor = 'var(--incorrect-text)';

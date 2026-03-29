@@ -17,6 +17,13 @@
     <button class="back-button" onclick="window.location.href='{{ url_for('auth.dashboard') }}'">
         <svg width="24" height="24" viewBox="0 0 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
+
+    <div class="top-right-stats">
+        <div class="xp-display" id="xp-badge">
+            <i class="fas fa-bolt" style="color: #FFA500;"></i>
+            <span id="xp-count">0 XP</span>
+        </div>
+    </div>
     
     <div class="game-page-wrapper">
         {% set temp_lesson = lessons|selectattr('url', 'equalto', request.path)|first %}

@@ -636,6 +636,8 @@ def ml_game():
     if not user_id:
         flash('Please log in to play the ML game.', 'warning')
         return redirect(url_for('auth.login'))
+    
+    user = User.query.get(user_id)
 
     # Fetch all defined lessons from the database.
     # This assumes the 'Lesson' table has been populated (e.g., by 'flask seed_lessons').
@@ -676,7 +678,7 @@ def ml_game():
 
     return render_template(
         "ml_game.html", 
-        user=session.get('user'), 
+        user=user, 
         lessons=user_lessons_with_status,
         module_progress_percent=module_progress_percent,
         completed_lessons_count=completed_lessons_count,

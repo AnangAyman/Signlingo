@@ -17,6 +17,9 @@ let correctAnswer;
 const correctSound = document.getElementById('correct-sound');
 const incorrectSound = document.getElementById('incorrect-sound');
 
+let currentXP = parseInt(sessionStorage.getItem('levelXP') || 0);
+document.getElementById('xp-count').innerText = currentXP + ' XP';
+
 // --- Webcam Setup ---
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -190,7 +193,18 @@ async function captureAndSend() {
 // --- Check Model Answer ---
 function checkAnswer(predictedLetter) {
     const isCorrect = predictedLetter === correctAnswer;
-    if (isCorrect) correctAnswersCount++;
+    if (isCorrect) {
+        correctAnswersCount++;
+        let sessionXP = parseInt(sessionStorage.getItem('levelXP') || 0);
+        sessionXP += 10;
+        sessionStorage.setItem('levelXP', sessionXP);
+        document.getElementById('xp-count').innerText = sessionXP + ' XP';
+
+        // Optional: Add a quick pop animation to the badge
+        const xpBadge = document.querySelector('.xp-display');
+        xpBadge.style.transform = 'scale(1.1)';
+        setTimeout(() => xpBadge.style.transform = 'scale(1)', 200);
+    }
 
     showFeedbackBanner(isCorrect, correctAnswer);
     setTimeout(loadQuestion, 2000);
