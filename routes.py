@@ -630,7 +630,7 @@ with open('lessons.json') as f:
 with open('ml_questions.json') as f:
     ml_questions = json.load(f)
 
-@auth_bp.route('/ml_game', methods=['GET', 'POST'])
+@auth_bp.route('/ml-game', methods=['GET', 'POST'])
 def ml_game():
     user_id = session.get('user_id')
     if not user_id:
@@ -701,7 +701,7 @@ def decrement_life():
     return jsonify({'success': False, 'error': 'User not found'}), 404
 
 # In routes.py
-@auth_bp.route('/video_learning')
+@auth_bp.route('/video-learning')
 def video_learning():
     user_id = session.get('user_id')
     if not user_id:

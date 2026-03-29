@@ -244,7 +244,7 @@ async function quizCompleted(lessonKeyForThisQuiz) {
     }
 
     // --- Redirect immediately to ML practice ---
-    window.location.href = '/ml_game';
+    window.location.href = '/ml-game';
 }
 
 
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Failed to mark game as skipped:', error);
             }
-            window.location.href = '/ml_game';
+            window.location.href = '/ml-game';
         });
 
         // Close modal when clicking outside

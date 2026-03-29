@@ -1,6 +1,6 @@
 [
-    { "title": "Learn with Video", "status": "current", "url": "/video_learning" },
+    { "title": "Learn with Video", "status": "current", "url": "/video-learning" },
     { "title": "Quiz Challenge", "status": "not_started", "url": "/gamepage" },
-    { "title": "Show Your Signs", "status": "not_started", "url": "/ml_game" },
-    { "title": "Magic Touch", "status": "not_started", "url": "/magic_touch" }
+    { "title": "Show Your Signs", "status": "not_started", "url": "/ml-game" },
+    { "title": "Magic Touch", "status": "not_started", "url": "/magic-touch" }
 ]  
