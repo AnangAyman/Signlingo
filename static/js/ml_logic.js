@@ -9,16 +9,14 @@ const progressBarFill = document.getElementById('progress-bar');
 const visualArea = document.querySelector('.quiz-visual-area');
 const controlsContainer = document.getElementById('ml-controls');
 
-let questionsAsked = 0;
+// FIX 3: Dynamic Question Arrays
+let currentLessonQuestions = [];
+let currentQuestionIndex = 0;
 let correctAnswersCount = 0;
-const TOTAL_QUESTIONS = 10;
-let correctAnswer;
+let correctAnswer = '';
 
 const correctSound = document.getElementById('correct-sound');
 const incorrectSound = document.getElementById('incorrect-sound');
-
-let currentXP = parseInt(sessionStorage.getItem('levelXP') || 0);
-document.getElementById('xp-count').innerText = currentXP + ' XP';
 
 // --- Webcam Setup ---
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -72,45 +70,63 @@ async function mlGameSessionCompleted(lessonKey) {
     questionEl.innerText = 'Practice Complete!';
     questionEl.classList.add('quiz-complete-title');
 
-    const accuracy = (correctAnswersCount / TOTAL_QUESTIONS) * 100;
-    const xpGained = correctAnswersCount * 10; // 10 XP per correct answer
+    const total = currentLessonQuestions.length || 1;
+    const accuracy = (correctAnswersCount / total) * 100;
+    const xpGained = correctAnswersCount * 10;
 
-    // --- Save ML results for summary ---
     try {
         await fetch('/save-session-results', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'ml',
-                xp: xpGained,
-                accuracy: accuracy,
-                skipped: false
-            })
+            body: JSON.stringify({ type: 'ml', xp: xpGained, accuracy: accuracy, skipped: false })
         });
-    } catch (error) {
-        console.error('Failed to save ML results:', error);
-    }
+    } catch (error) { console.error('Failed to save ML results:', error); }
 
-    // --- Mark lesson as complete for tracking ---
-    if (lessonKey) {
+    if (lessonKey && lessonKey !== 'KEY_NOT_FOUND') {
         try {
             await fetch('/mark-lesson-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ lesson_key: lessonKey, status: 'completed' })
             });
-        } catch (error) {
-            console.error('ML Logic: Error marking lesson complete:', error);
-        }
+        } catch (error) { console.error('ML Logic: Error marking lesson complete:', error); }
     }
 
-    // --- Redirect immediately to unified result summary ---
+    // Redirect to Magic Touch or Result Summary depending on the flow
     window.location.href = '/result-summary';
 }
 
+// --- Initialization: Fetch all questions ---
+async function initializeQuiz() {
+    const gameContainer = document.querySelector('.quiz-card');
+    const lessonKey = gameContainer ? gameContainer.dataset.lessonKey : null;
+
+    if (!lessonKey || lessonKey === 'KEY_NOT_FOUND') {
+        questionEl.innerText = 'Error: Lesson Key not found in HTML.';
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/lessons/${lessonKey}/questions`);
+        if (!res.ok) throw new Error('Failed to fetch questions from database');
+        
+        currentLessonQuestions = await res.json();
+        
+        if (currentLessonQuestions.length === 0) {
+            questionEl.innerText = 'No questions available for this level.';
+            return;
+        }
+
+        loadQuestion(); 
+    } catch (error) {
+        console.error(error);
+        questionEl.innerText = 'Failed to load curriculum data.';
+    }
+}
+
 // --- Load Question ---
-async function loadQuestion() {
-    if (questionsAsked >= TOTAL_QUESTIONS) {
+function loadQuestion() {
+    if (currentQuestionIndex >= currentLessonQuestions.length) {
         const gameContainer = document.querySelector('.quiz-card');
         const lessonKey = gameContainer ? gameContainer.dataset.lessonKey : null;
         mlGameSessionCompleted(lessonKey);
@@ -119,27 +135,17 @@ async function loadQuestion() {
 
     hideFeedbackBanner();
 
-    try {
-        const res = await fetch('/get-question-ml');
-        if (!res.ok) throw new Error('Failed to fetch ML question.');
+    const qData = currentLessonQuestions[currentQuestionIndex];
+    correctAnswer = qData.answer;
+    questionEl.innerText = qData.prompt;
+    resultEl.textContent = '';
 
-        const data = await res.json();
-        correctAnswer = data.answer;
-        questionEl.innerText = data.question;
-        resultEl.textContent = '';
+    updateProgress();
 
-        questionsAsked++;
-        updateProgress();
-
-        startBtn.disabled = false;
-        startBtn.style.display = 'block';
-        startBtn.textContent = 'Start Pose Capture';
-        startBtn.onclick = startCountdown;
-    } catch (error) {
-        console.error("ML Logic: Error loading question:", error);
-        questionEl.innerText = 'Could not load ML challenge.';
-        startBtn.disabled = true;
-    }
+    startBtn.disabled = false;
+    startBtn.style.display = 'block';
+    startBtn.textContent = 'Start Pose Capture';
+    startBtn.onclick = startCountdown;
 }
 
 // --- Countdown before capture ---
@@ -160,7 +166,7 @@ function startCountdown() {
 }
 
 // --- Capture Webcam Frame and Send for Prediction ---
-async function captureAndSend() {
+function captureAndSend() {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -192,32 +198,38 @@ async function captureAndSend() {
 
 // --- Check Model Answer ---
 function checkAnswer(predictedLetter) {
-    const isCorrect = predictedLetter === correctAnswer;
+    const isCorrect = (predictedLetter === correctAnswer);
     if (isCorrect) {
         correctAnswersCount++;
+        playSound(correctSound);
+        
+        // Add Session XP for correct answers
         let sessionXP = parseInt(sessionStorage.getItem('levelXP') || 0);
         sessionXP += 10;
         sessionStorage.setItem('levelXP', sessionXP);
-        document.getElementById('xp-count').innerText = sessionXP + ' XP';
+        const xpCount = document.getElementById('xp-count');
+        if (xpCount) xpCount.innerText = sessionXP + ' XP';
 
-        // Optional: Add a quick pop animation to the badge
-        const xpBadge = document.querySelector('.xp-display');
-        xpBadge.style.transform = 'scale(1.1)';
-        setTimeout(() => xpBadge.style.transform = 'scale(1)', 200);
+    } else {
+        playSound(incorrectSound);
     }
 
     showFeedbackBanner(isCorrect, correctAnswer);
+
+    // Advance to the next question
+    currentQuestionIndex++;
     setTimeout(loadQuestion, 2000);
 }
 
 // --- Update Progress ---
 function updateProgress() {
-    const percent = (questionsAsked / TOTAL_QUESTIONS) * 100;
+    const total = currentLessonQuestions.length || 1;
+    const percent = (currentQuestionIndex / total) * 100;
     progressBarFill.style.width = percent + '%';
 }
 
 // --- Init on Load ---
-window.onload = loadQuestion;
+window.onload = initializeQuiz;
 
 // --- Skip Logic ---
 const skipButton = document.getElementById('skip-button');
@@ -225,36 +237,23 @@ const skipModal = document.getElementById('skip-modal');
 const cancelSkip = document.getElementById('cancel-skip');
 const confirmSkip = document.getElementById('confirm-skip');
 
-skipButton.addEventListener('click', () => {
-    skipModal.classList.add('show');
-});
+if (skipButton && skipModal && cancelSkip && confirmSkip) {
+    skipButton.addEventListener('click', () => { skipModal.classList.add('show'); });
+    cancelSkip.addEventListener('click', () => { skipModal.classList.remove('show'); });
 
-cancelSkip.addEventListener('click', () => {
-    skipModal.classList.remove('show');
-});
+    confirmSkip.addEventListener('click', async () => {
+        try {
+            await fetch('/save-session-results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'ml', xp: 0, accuracy: 0, skipped: true })
+            });
+        } catch (error) { console.error('Failed to mark ML as skipped:', error); }
 
-confirmSkip.addEventListener('click', async () => {
-    try {
-        await fetch('/save-session-results', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'ml',
-                xp: 0,
-                accuracy: 0,
-                skipped: true
-            })
-        });
-    } catch (error) {
-        console.error('Failed to mark ML as skipped:', error);
-    }
+        window.location.href = '/result-summary';
+    });
 
-    window.location.href = '/result-summary';
-});
-
-// --- Close modal when clicking outside ---
-skipModal.addEventListener('click', (e) => {
-    if (e.target === skipModal) {
-        skipModal.classList.remove('show');
-    }
-});
+    skipModal.addEventListener('click', (e) => {
+        if (e.target === skipModal) skipModal.classList.remove('show');
+    });
+}

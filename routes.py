@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash
-from models import Lesson, UserLessonStatus, db, User  # Import the database and User model
-from models import Course, Module, Unit
+from models import Lesson, UserLessonStatus, db, User, Course, Module, Unit, LessonStep, Question, ShopItem, UserItem
 import random,json
 from tertiary import get_initials, get_random_question
 from email_validator import validate_email, EmailNotValidError
@@ -208,6 +207,39 @@ def dashboard():
         else:
             break 
 
+    lessons, prog, completed, total = get_sidebar_data(user_id)
+
+    modules_db = Module.query.order_by(Module.order).all()
+    dynamic_modules = []
+    is_unlocked = True # The first module is always unlocked by default
+
+    for m in modules_db:
+        mod_total = 0
+        mod_completed = 0
+        for u in m.units:
+            for l in u.lessons:
+                mod_total += 1
+                status = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=l.id).first()
+                if status and status.status == 'completed':
+                    mod_completed += 1
+        
+        prog_percent = (mod_completed / mod_total * 100) if mod_total > 0 else 0
+        
+        dynamic_modules.append({
+            'id': m.id,
+            'title': m.title,
+            'progress': prog_percent,
+            'is_unlocked': is_unlocked,
+            'total_lessons': mod_total
+        })
+        
+        # To unlock the NEXT module in the loop, THIS module must be 100% finished
+        # (and must actually have lessons inside it)
+        if mod_total > 0 and mod_completed == mod_total:
+            is_unlocked = True
+        else:
+            is_unlocked = False
+
     return render_template(
         "dashboard.html",
         full_name=full_name,
@@ -221,7 +253,12 @@ def dashboard():
         streak_data=streak_data,
         current_streak=current_streak,
         today=today,
-        user=user
+        user=user,
+        lessons=lessons,
+        module_progress_percent=prog,
+        completed_lessons_count=completed,
+        total_lessons_count=total,
+        dynamic_modules=dynamic_modules
     )
 
 @auth_bp.route('/start', methods=['GET', 'POST'])
@@ -620,71 +657,16 @@ def get_summary_results():
     })
 
 # ----------------------------------- GAME PAGE ------------------------------------------------
-
-with open('questions.json') as f:
-    questions = json.load(f)
-
-with open('lessons.json') as f:
-    lessons = json.load(f)
-
-with open('ml_questions.json') as f:
-    ml_questions = json.load(f)
-
 @auth_bp.route('/ml-game', methods=['GET', 'POST'])
 def ml_game():
     user_id = session.get('user_id')
-    if not user_id:
-        flash('Please log in to play the ML game.', 'warning')
-        return redirect(url_for('auth.login'))
-    
+    if not user_id: return redirect(url_for('auth.login'))
     user = User.query.get(user_id)
-
-    # Fetch all defined lessons from the database.
-    # This assumes the 'Lesson' table has been populated (e.g., by 'flask seed_lessons').
-    all_db_lessons = Lesson.query.order_by(Lesson.order).all()
-    if not all_db_lessons:
-        flash("Learning lessons are not yet available. Please ask an administrator to set them up.", "warning")
-        # Fallback to an empty list or handle as an error, but ideally, lessons should be seeded.
-        all_db_lessons = [] 
-
-    user_lessons_with_status = []
-    total_lessons_count = len(all_db_lessons)
-    completed_lessons_count = 0
-
-    for db_lesson in all_db_lessons:
-        status_entry = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=db_lesson.id).first()
-        current_status = status_entry.status if status_entry else 'not_started'
-        if current_status == 'completed':
-            completed_lessons_count += 1
-        
-        # Determine if the current page's lesson should be marked as 'current' in the sidebar
-        is_current_page_lesson = (request.path == db_lesson.url)
-        
-        display_status = current_status
-        if is_current_page_lesson and current_status != 'completed':
-            display_status = 'current'
-
-        user_lessons_with_status.append({
-            'title': db_lesson.title,
-            'url': db_lesson.url,
-            'status': display_status, # Use the determined display_status
-            'lesson_key': db_lesson.lesson_key
-        })
+    lessons, prog, completed, total = get_sidebar_data(user_id)
     
-    module_progress_percent = (completed_lessons_count / total_lessons_count) * 100 if total_lessons_count > 0 else 0
-    
-    # Placeholder for module accuracy - you'd need a way to calculate and store this if desired
-    module_accuracy = "N/A" 
+    active_step = get_active_step(user_id, '/ml-game') # Get the active step!
 
-    return render_template(
-        "ml_game.html", 
-        user=user, 
-        lessons=user_lessons_with_status,
-        module_progress_percent=module_progress_percent,
-        completed_lessons_count=completed_lessons_count,
-        total_lessons_count=total_lessons_count,
-        module_accuracy=module_accuracy # Pass this to the template
-    )
+    return render_template("ml_game.html", user=user, lessons=lessons, module_progress_percent=prog, completed_lessons_count=completed, total_lessons_count=total, module_accuracy="N/A", active_step=active_step)
 
 @auth_bp.route('/decrement_life', methods=['POST'])
 def decrement_life():
@@ -706,16 +688,70 @@ def decrement_life():
 @auth_bp.route('/video-learning')
 def video_learning():
     user_id = session.get('user_id')
-    if not user_id:
-        flash('Please log in to access learning videos.', 'warning')
-        return redirect(url_for('auth.login'))
-
-    all_db_lessons = Lesson.query.order_by(Lesson.order).all() # Assumes lessons are seeded
-    # (If not seeded, you might call get_or_create_lessons_from_json() here, but preferably seeded via CLI)
+    if not user_id: return redirect(url_for('auth.login'))
+    user = User.query.get(user_id)
+    lessons, prog, completed, total = get_sidebar_data(user_id)
     
+    active_step = get_active_step(user_id, '/video-learning') # Get the active step!
+
+    return render_template("video_learning.html", user=user, lessons=lessons, module_progress_percent=prog, completed_lessons_count=completed, total_lessons_count=total, active_step=active_step)
+
+@auth_bp.route('/play/<int:lesson_id>')
+def play_lesson(lesson_id):
+    """Router for explicitly starting or replaying a specific lesson."""
+    session['current_lesson_id'] = lesson_id
+    lesson = Lesson.query.get_or_404(lesson_id)
+    first_step = LessonStep.query.filter_by(lesson_id=lesson.id).order_by(LessonStep.order).first()
+    return redirect(first_step.url)
+
+@auth_bp.route('/play/continue')
+def play_continue():
+    """Smart router for the 'Continue Module' button."""
+    user_id = session.get('user_id')
+    if not user_id: return redirect(url_for('auth.login'))
+    
+    # Find the first incomplete lesson and route to it
+    for lesson in Lesson.query.order_by(Lesson.order).all():
+        status = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=lesson.id).first()
+        if not status or status.status != 'completed':
+            return redirect(url_for('auth.play_lesson', lesson_id=lesson.id))
+    
+    # If all lessons are completed, just replay the last one
+    last_lesson = Lesson.query.order_by(Lesson.order.desc()).first()
+    return redirect(url_for('auth.play_lesson', lesson_id=last_lesson.id if last_lesson else 1))
+
+@auth_bp.route('/play/module/<int:module_id>')
+def play_module(module_id):
+    """Router for explicitly starting or continuing a specific module."""
+    user_id = session.get('user_id')
+    if not user_id: return redirect(url_for('auth.login'))
+    
+    module = Module.query.get_or_404(module_id)
+    
+    # 1. Find the first incomplete lesson in THIS module
+    for unit in module.units:
+        for lesson in unit.lessons:
+            status = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=lesson.id).first()
+            if not status or status.status != 'completed':
+                return redirect(url_for('auth.play_lesson', lesson_id=lesson.id))
+    
+    # 2. If all are completed, replay the very last lesson of this module
+    last_lesson = None
+    for unit in module.units:
+        for lesson in unit.lessons:
+            last_lesson = lesson
+            
+    if last_lesson:
+        return redirect(url_for('auth.play_lesson', lesson_id=last_lesson.id))
+        
+    return redirect(url_for('auth.dashboard'))
+
+def get_sidebar_data(user_id):
+    """Smart helper to build the sidebar based on the new Step architecture."""
+    all_db_lessons = Lesson.query.order_by(Lesson.order).all()
     user_lessons_with_status = []
-    total_lessons_count = len(all_db_lessons)
     completed_lessons_count = 0
+    total_lessons_count = len(all_db_lessons)
 
     for db_lesson in all_db_lessons:
         status_entry = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=db_lesson.id).first()
@@ -723,158 +759,127 @@ def video_learning():
         if current_status == 'completed':
             completed_lessons_count += 1
         
-        is_current_page_lesson = (request.path == db_lesson.url)
+        # Determine if this specific lesson is currently being played
+        is_current_page_lesson = False
+        if session.get('current_lesson_id') == db_lesson.id:
+            is_current_page_lesson = True
+        
+        display_status = current_status
+        if is_current_page_lesson and current_status != 'completed':
+            display_status = 'current'
+
         user_lessons_with_status.append({
             'title': db_lesson.title,
-            'url': db_lesson.url,
-            'status': 'current' if is_current_page_lesson and current_status != 'completed' else current_status,
-            'lesson_key': db_lesson.lesson_key
+            'url': url_for('auth.play_lesson', lesson_id=db_lesson.id), # Uses the new router!
+            'status': display_status,
+            'lesson_key': 'sidebar_link' 
         })
     
     module_progress_percent = (completed_lessons_count / total_lessons_count) * 100 if total_lessons_count > 0 else 0
+    return user_lessons_with_status, module_progress_percent, completed_lessons_count, total_lessons_count
 
-    return render_template(
-        "video_learning.html", 
-        user=session.get('user'), 
-        lessons=user_lessons_with_status,
-        module_progress_percent=module_progress_percent,
-        completed_lessons_count=completed_lessons_count,
-        total_lessons_count=total_lessons_count
-    )
+def get_active_step(user_id, current_url):
+    """Finds the correct step based on the explicitly playing lesson."""
+    # 1. Prioritize the lesson the user explicitly clicked on the roadmap
+    current_lesson_id = session.get('current_lesson_id')
+    if current_lesson_id:
+        lesson = Lesson.query.get(current_lesson_id)
+        if lesson:
+            for step in lesson.steps:
+                if step.url == current_url:
+                    return step
+    
+    # 2. Fallback: Find the user's active progress
+    for lesson in Lesson.query.order_by(Lesson.order).all():
+        status_entry = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=lesson.id).first()
+        if not status_entry or status_entry.status != 'completed':
+            session['current_lesson_id'] = lesson.id
+            for step in lesson.steps:
+                if step.url == current_url:
+                    return step
+            break 
+            
+    return LessonStep.query.filter_by(url=current_url).first()
 
-
-from initialization import get_or_create_lessons_from_json
 @auth_bp.route('/gamepage')
 def gamepage():
     user_id = session.get('user_id')
-    if not user_id:
-        flash('Please log in to play the game.', 'warning')
-        return redirect(url_for('auth.login'))
-
+    if not user_id: return redirect(url_for('auth.login'))
     user = User.query.get(user_id)
-
-    # Ensure lessons are in the DB
-    all_db_lessons = get_or_create_lessons_from_json() # Call this to ensure lessons table is populated
-
-    user_lessons_with_status = []
-    total_lessons_count = len(all_db_lessons)
-    completed_lessons_count = 0
-
-    for db_lesson in all_db_lessons:
-        status_entry = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=db_lesson.id).first()
-        current_status = status_entry.status if status_entry else 'not_started'
-        if current_status == 'completed':
-            completed_lessons_count += 1
-        
-        # Determine if the lesson is 'current' based on its URL matching the request path
-        is_current_page_lesson = (request.path == db_lesson.url)
-
-        user_lessons_with_status.append({
-            'title': db_lesson.title,
-            'url': db_lesson.url,
-            'status': 'current' if is_current_page_lesson and current_status != 'completed' else current_status,
-            'lesson_key': db_lesson.lesson_key # Pass lesson_key for client-side updates
-        })
-    
-    # Recalculate overall progress for the "Bisindo Letters" module (assuming these lessons are it)
-    # The progress bar in gamepage.html uses an ID 'progress-bar' for quiz questions.
-    # The sidebar progress bar needs a different logic.
-    # Let's assume the sidebar progress bar should reflect module completion
-    module_progress_percent = (completed_lessons_count / total_lessons_count) * 100 if total_lessons_count > 0 else 0
-
-
-    # This 'lessons' variable is what your template iterates over for the sidebar
-    # The 'status' will now be user-specific.
-    print(f"DEBUG: Current request.path: {request.path}")
-    print(f"DEBUG: Lessons being passed to template: {user_lessons_with_status}")
     session.pop('questions_asked', None) 
-    return render_template(
-        "game_page.html", 
-        user=user, 
-        lessons=user_lessons_with_status,
-        module_progress_percent=module_progress_percent, # For the main module progress bar
-        # The existing progress bar inside quiz-card is for quiz question progress, leave its JS as is.
-        completed_lessons_count=completed_lessons_count,
-        total_lessons_count=total_lessons_count
-        # You might need to pass accuracy if you calculate and store it.
-    )
+    lessons, prog, completed, total = get_sidebar_data(user_id)
+    
+    active_step = get_active_step(user_id, '/gamepage') # Get the active step!
 
+    return render_template("game_page.html", user=user, lessons=lessons, module_progress_percent=prog, completed_lessons_count=completed, total_lessons_count=total, active_step=active_step)
 
 @auth_bp.route('/mark-lesson-status', methods=['POST'])
 def mark_lesson_status():
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'success': False, 'error': 'User not logged in'}), 401
+    if not user_id: return jsonify({'success': False, 'error': 'User not logged in'}), 401
 
     data = request.json
-    lesson_key = data.get('lesson_key') # Use the stable lesson_key
-    new_status = data.get('status', 'completed') # Default to 'completed'
-    score = data.get('score') # Optional
+    step_key = data.get('lesson_key') 
 
-    if not lesson_key:
-        return jsonify({'success': False, 'error': 'Lesson key missing'}), 400
+    step = LessonStep.query.filter_by(step_key=step_key).first()
+    if not step: return jsonify({'success': False, 'error': 'Step not found'}), 404
 
-    lesson = Lesson.query.filter_by(lesson_key=lesson_key).first()
-    if not lesson:
-        return jsonify({'success': False, 'error': 'Lesson not found'}), 404
-
+    lesson = step.lesson
     status_entry = UserLessonStatus.query.filter_by(user_id=user_id, lesson_id=lesson.id).first()
+    
     if not status_entry:
         status_entry = UserLessonStatus(user_id=user_id, lesson_id=lesson.id)
         db.session.add(status_entry)
     
-    status_entry.status = new_status
-    if score is not None:
-        status_entry.score = score
+    # Check if this step is the LAST step in the lesson sequence
+    last_step = LessonStep.query.filter_by(lesson_id=lesson.id).order_by(LessonStep.order.desc()).first()
     
+    if step.id == last_step.id:
+        status_entry.status = 'completed' # Finished the whole sequence!
+    else:
+        if status_entry.status != 'completed': # Don't downgrade if replaying
+            status_entry.status = 'in_progress'
+            
     db.session.commit()
-    return jsonify({'success': True, 'message': f'Lesson {lesson.title} marked as {new_status}'})
+    return jsonify({'success': True})
 
 @auth_bp.route('/course')
 def course():
     user_id = session.get('user_id')
-    
     if not user_id:
         return redirect(url_for('auth.login'))
     
-    login_today = session.get("today_login")
-    print(login_today)
-
     user = User.query.get(user_id)
-    full_name = user.name
+    first_name, initials = get_initials(user.name)
+    
+    # Grab the courses from the database instead of JSON
+    db_courses = Course.query.all()
 
-    first_name,initials = get_initials(full_name)
-    return render_template("courses_final.html", user=user, lessons=lessons, initials=initials, first_name=first_name, login_today=login_today, full_name=full_name)
+    return render_template("courses_final.html", user=user, courses=db_courses, initials=initials, first_name=first_name, login_today=session.get("today_login"), full_name=user.name)
 
-
-@auth_bp.route('/get-question')
-def get_question():
-    question = get_random_question(questions)
-
-    # Randomize the choices
-    choices = question['choices']
-    random_choices = random.sample(choices, len(choices))  # Shuffle choices
-
-    # Prepare the response
-    response = {
-        'question': question['question'],
-        'choices': random_choices,
-        'answer': question['answer'],  # Keep the correct answer
-        'image': question['image']
-    }
-
-    return jsonify(response)
-
-@auth_bp.route('/get-question-ml')
-def get_question_ml():
-    question = get_random_question(ml_questions)
-
-    # Prepare the response
-    response = {
-        'question': question['question'],
-        'answer': question['answer'],  # Keep the correct answer
-    }
-
+@auth_bp.route('/api/lessons/<lesson_key>/questions')
+def get_lesson_questions(lesson_key):
+    """Fetches the specific questions for a given lesson level step."""
+    # The frontend calls it 'lesson_key', but in our DB it is now 'step_key'
+    step = LessonStep.query.filter_by(step_key=lesson_key).first()
+    
+    if not step:
+        return jsonify({'error': 'Step not found'}), 404
+        
+    # Questions are now linked to the LessonStep via step_id
+    questions = Question.query.filter_by(step_id=step.id).order_by(Question.order).all()
+    
+    response = []
+    for q in questions:
+        response.append({
+            'id': q.id,
+            'type': q.question_type,
+            'prompt': q.prompt_text,
+            'image': q.image_url,
+            'answer': q.correct_answer,
+            'choices': q.choices
+        })
+        
     return jsonify(response)
 
 @auth_bp.route('/check-answer', methods=['POST'])

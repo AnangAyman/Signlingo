@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from models import db
-from initialization import get_or_create_lessons_from_json, create_admin_user, seed_shop_items
+from initialization import seed_curriculum, create_admin_user, seed_shop_items
 import os
 from flask_mail import Mail
 
@@ -36,7 +36,7 @@ def init_app_command():
         db.create_all()
         print("Database initialized successfully!")
         
-        get_or_create_lessons_from_json()
+        seed_curriculum()
         print("Lessons seeded successfully!")
         
         create_admin_user()

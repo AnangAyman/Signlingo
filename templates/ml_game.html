@@ -11,28 +11,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global_style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ml_game.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Assets/logo.png') }}">
 </head>
 <body>
 
     <button class="back-button" onclick="window.location.href='{{ url_for('auth.dashboard') }}'">
-        <svg width="24" height="24" viewBox="0 0 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-
+    
     <div class="top-right-stats">
-        <div class="xp-display" id="xp-badge">
+        <div class="xp-display">
             <i class="fas fa-bolt" style="color: #FFA500;"></i>
             <span id="xp-count">0 XP</span>
         </div>
     </div>
-    
+
     <div class="game-page-wrapper">
-        {% set temp_lesson = lessons|selectattr('url', 'equalto', request.path)|first %}
-        <div class="quiz-card" data-lesson-key="{{ temp_lesson.lesson_key if temp_lesson and temp_lesson.lesson_key else 'KEY_NOT_FOUND_IN_LESSON' }}">
+        <div class="quiz-card" data-lesson-key="{{ active_step.step_key if active_step else 'KEY_NOT_FOUND' }}">
             
             <div class="game-header">
                 <div class="header-text">
                     <span class="module-badge">PRACTICE</span>
-                    <h1>{{ temp_lesson.title if temp_lesson else "Live Practice" }}</h1>
+                    <h1>{{ active_step.lesson.title if active_step else "Live Practice" }}</h1>
                 </div>
                 <div class="progress-info">
                     <span class="progress-label">Module Progress</span>
@@ -90,7 +90,6 @@
         Skip Practice
     </button>
 
-    <!-- Skip Confirmation Modal -->
     <div class="modal-overlay" id="skip-modal">
         <div class="modal-content">
             <div class="modal-icon">
@@ -106,5 +105,10 @@
     </div>
     
     <script src="{{ url_for('static', filename='js/ml_logic.js') }}"></script>
+    
+    <script>
+        let currentXP = parseInt(sessionStorage.getItem('levelXP') || 0);
+        document.getElementById('xp-count').innerText = currentXP + ' XP';
+    </script>
 </body>
 </html>

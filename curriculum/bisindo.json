@@ -1,0 +1,245 @@
+{
+  "course_title": "BISINDO Language",
+  "language_code": "id-bs",
+  "modules": [
+    {
+      "title": "Module 1: Letters",
+      "order": 1,
+      "units": [
+        {
+          "title": "Unit 1: The Alphabet",
+          "order": 1,
+          "lessons": [
+            {
+              "title": "Level 1: The Fundamentals (A-I)",
+              "order": 1,
+              "steps": [
+                {
+                  "step_key": "m1_u1_l1_video",
+                  "step_type": "video",
+                  "url": "/video-learning",
+                  "order": 1,
+                  "questions": []
+                },
+                {
+                  "step_key": "m1_u1_l1_quiz",
+                  "step_type": "quiz",
+                  "url": "/gamepage",
+                  "order": 2,
+                  "questions": [
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/a.png", "correct_answer": "A", "choices": ["A", "B", "C", "D"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/b.png", "correct_answer": "B", "choices": ["F", "B", "R", "A"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/c.png", "correct_answer": "C", "choices": ["O", "C", "G", "E"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/d.png", "correct_answer": "D", "choices": ["D", "I", "F", "P"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/e.png", "correct_answer": "E", "choices": ["S", "A", "E", "T"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/f.png", "correct_answer": "F", "choices": ["W", "F", "B", "D"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/g.png", "correct_answer": "G", "choices": ["H", "Q", "G", "P"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/h.png", "correct_answer": "H", "choices": ["U", "V", "H", "G"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/i.png", "correct_answer": "I", "choices": ["J", "Y", "I", "T"] }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l1_ml",
+                  "step_type": "ml_practice",
+                  "url": "/ml-game",
+                  "order": 3,
+                  "questions": [
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'A' to the camera.", "correct_answer": "A" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'B' to the camera.", "correct_answer": "B" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'C' to the camera.", "correct_answer": "C" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'D' to the camera.", "correct_answer": "D" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'E' to the camera.", "correct_answer": "E" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'F' to the camera.", "correct_answer": "F" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'G' to the camera.", "correct_answer": "G" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'H' to the camera.", "correct_answer": "H" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'I' to the camera.", "correct_answer": "I" }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Level 2: Expanding the Vocabulary (J-R)",
+              "order": 2,
+              "steps": [
+                {
+                  "step_key": "m1_u1_l2_video",
+                  "step_type": "video",
+                  "url": "/video-learning",
+                  "order": 1,
+                  "questions": []
+                },
+                {
+                  "step_key": "m1_u1_l2_quiz",
+                  "step_type": "quiz",
+                  "url": "/gamepage",
+                  "order": 2,
+                  "questions": [
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/j.png", "correct_answer": "J", "choices": ["J", "I", "Y", "L"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/k.png", "correct_answer": "K", "choices": ["P", "V", "K", "R"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/l.png", "correct_answer": "L", "choices": ["C", "L", "I", "J"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/m.png", "correct_answer": "M", "choices": ["N", "W", "M", "E"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/n.png", "correct_answer": "N", "choices": ["M", "H", "U", "N"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/o.png", "correct_answer": "O", "choices": ["C", "E", "O", "Q"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/p.png", "correct_answer": "P", "choices": ["K", "Q", "P", "F"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/q.png", "correct_answer": "Q", "choices": ["G", "P", "Y", "Q"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/r.png", "correct_answer": "R", "choices": ["U", "V", "R", "K"] }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l2_ml",
+                  "step_type": "ml_practice",
+                  "url": "/ml-game",
+                  "order": 3,
+                  "questions": [
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'J' to the camera.", "correct_answer": "J" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'K' to the camera.", "correct_answer": "K" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'L' to the camera.", "correct_answer": "L" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'M' to the camera.", "correct_answer": "M" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'N' to the camera.", "correct_answer": "N" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'O' to the camera.", "correct_answer": "O" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'P' to the camera.", "correct_answer": "P" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'Q' to the camera.", "correct_answer": "Q" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'R' to the camera.", "correct_answer": "R" }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Level 3: Mid-Module Checkpoint (Review A-R)",
+              "order": 3,
+              "steps": [
+                {
+                  "step_key": "m1_u1_l3_quiz",
+                  "step_type": "quiz",
+                  "url": "/gamepage",
+                  "order": 1,
+                  "questions": [
+                    { "question_type": "multiple_choice", "prompt_text": "Review: Identify this sign.", "image_url": "Assets/bisindo/c.png", "correct_answer": "C", "choices": ["O", "C", "G", "E"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Review: Identify this sign.", "image_url": "Assets/bisindo/k.png", "correct_answer": "K", "choices": ["P", "V", "K", "R"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Review: Identify this sign.", "image_url": "Assets/bisindo/h.png", "correct_answer": "H", "choices": ["U", "V", "H", "G"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Review: Identify this sign.", "image_url": "Assets/bisindo/p.png", "correct_answer": "P", "choices": ["K", "Q", "P", "F"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Review: Identify this sign.", "image_url": "Assets/bisindo/m.png", "correct_answer": "M", "choices": ["N", "W", "M", "E"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Review: Identify this sign.", "image_url": "Assets/bisindo/f.png", "correct_answer": "F", "choices": ["W", "F", "B", "D"] }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l3_ml",
+                  "step_type": "ml_practice",
+                  "url": "/ml-game",
+                  "order": 2,
+                  "questions": [
+                    { "question_type": "ml_sign", "prompt_text": "Review: Sign the letter 'D' to the camera.", "correct_answer": "D" },
+                    { "question_type": "ml_sign", "prompt_text": "Review: Sign the letter 'L' to the camera.", "correct_answer": "L" },
+                    { "question_type": "ml_sign", "prompt_text": "Review: Sign the letter 'Q' to the camera.", "correct_answer": "Q" },
+                    { "question_type": "ml_sign", "prompt_text": "Review: Sign the letter 'A' to the camera.", "correct_answer": "A" },
+                    { "question_type": "ml_sign", "prompt_text": "Review: Sign the letter 'R' to the camera.", "correct_answer": "R" },
+                    { "question_type": "ml_sign", "prompt_text": "Review: Sign the letter 'J' to the camera.", "correct_answer": "J" }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l3_magic",
+                  "step_type": "magic_touch",
+                  "url": "/magic-touch",
+                  "order": 3,
+                  "questions": [
+                    { "question_type": "magic_touch", "prompt_text": "Review Letters A-R", "correct_answer": "A-R" }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Level 4: Completing the Alphabet (S-Z)",
+              "order": 4,
+              "steps": [
+                {
+                  "step_key": "m1_u1_l4_quiz",
+                  "step_type": "quiz",
+                  "url": "/gamepage",
+                  "order": 1,
+                  "questions": [
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/s.png", "correct_answer": "S", "choices": ["A", "S", "E", "T"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/t.png", "correct_answer": "T", "choices": ["S", "T", "F", "M"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/u.png", "correct_answer": "U", "choices": ["V", "U", "H", "R"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/v.png", "correct_answer": "V", "choices": ["U", "V", "K", "W"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/w.png", "correct_answer": "W", "choices": ["V", "W", "F", "M"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/x.png", "correct_answer": "X", "choices": ["X", "Z", "J", "C"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/y.png", "correct_answer": "Y", "choices": ["I", "Y", "J", "L"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Identify this sign.", "image_url": "Assets/bisindo/z.png", "correct_answer": "Z", "choices": ["X", "Z", "D", "G"] }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l4_ml",
+                  "step_type": "ml_practice",
+                  "url": "/ml-game",
+                  "order": 2,
+                  "questions": [
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'S' to the camera.", "correct_answer": "S" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'T' to the camera.", "correct_answer": "T" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'U' to the camera.", "correct_answer": "U" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'V' to the camera.", "correct_answer": "V" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'W' to the camera.", "correct_answer": "W" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'X' to the camera.", "correct_answer": "X" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'Y' to the camera.", "correct_answer": "Y" },
+                    { "question_type": "ml_sign", "prompt_text": "Sign the letter 'Z' to the camera.", "correct_answer": "Z" }
+                  ]
+                }
+              ]
+            },
+            {
+              "title": "Level 5: Alphabet Mastery (Full Review A-Z)",
+              "order": 5,
+              "steps": [
+                {
+                  "step_key": "m1_u1_l5_quiz",
+                  "step_type": "quiz",
+                  "url": "/gamepage",
+                  "order": 1,
+                  "questions": [
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/a.png", "correct_answer": "A", "choices": ["A", "B", "C", "D"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/k.png", "correct_answer": "K", "choices": ["P", "V", "K", "R"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/s.png", "correct_answer": "S", "choices": ["A", "S", "E", "T"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/y.png", "correct_answer": "Y", "choices": ["I", "Y", "J", "L"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/j.png", "correct_answer": "J", "choices": ["J", "I", "Y", "L"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/w.png", "correct_answer": "W", "choices": ["V", "W", "F", "M"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/d.png", "correct_answer": "D", "choices": ["D", "I", "F", "P"] },
+                    { "question_type": "multiple_choice", "prompt_text": "Mastery: Identify this sign.", "image_url": "Assets/bisindo/z.png", "correct_answer": "Z", "choices": ["X", "Z", "D", "G"] }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l5_ml",
+                  "step_type": "ml_practice",
+                  "url": "/ml-game",
+                  "order": 2,
+                  "questions": [
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'B' to the camera.", "correct_answer": "B" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'M' to the camera.", "correct_answer": "M" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'T' to the camera.", "correct_answer": "T" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'H' to the camera.", "correct_answer": "H" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'V' to the camera.", "correct_answer": "V" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'X' to the camera.", "correct_answer": "X" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'P' to the camera.", "correct_answer": "P" },
+                    { "question_type": "ml_sign", "prompt_text": "Mastery: Sign the letter 'G' to the camera.", "correct_answer": "G" }
+                  ]
+                },
+                {
+                  "step_key": "m1_u1_l5_magic",
+                  "step_type": "magic_touch",
+                  "url": "/magic-touch",
+                  "order": 3,
+                  "questions": [
+                     { "question_type": "magic_touch", "prompt_text": "Mastery Review Letters A-Z", "correct_answer": "A-Z" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Module 2: Words (Coming Soon)",
+      "order": 2,
+      "units": []
+    }
+  ]
+}
