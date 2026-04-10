@@ -1,8 +1,8 @@
 // --- Global Variables ---
+let currentLessonQuestions = [];
+let currentQuestionIndex = 0;
 let correctAnswer = '';
-let questionsAsked = 0;
 let correctAnswersCount = 0;
-const TOTAL_QUESTIONS = 10;
 
 const correctSound = document.getElementById('correct-sound');
 const incorrectSound = document.getElementById('incorrect-sound');
@@ -19,12 +19,16 @@ function playSound(soundElement) {
 function showLoadingState(isLoading) {
     const spinner = document.getElementById('loading-spinner');
     const image = document.getElementById('sign-image');
-    if (isLoading) {
-        spinner.style.display = 'block';
-        image.style.display = 'none';
-    } else {
-        spinner.style.display = 'none';
-        image.style.display = 'block';
+    
+    // Safety check to prevent null errors
+    if (spinner && image) {
+        if (isLoading) {
+            spinner.style.display = 'block';
+            image.style.display = 'none';
+        } else {
+            spinner.style.display = 'none';
+            image.style.display = 'block';
+        }
     }
 }
 
@@ -40,36 +44,27 @@ function showFeedbackBanner(isCorrect, correctAns) {
     } else {
         banner.classList.add('incorrect');
         feedbackText.innerText = `Correct answer: ${correctAns}`;
-        
-        // Call the backend to remove one life
-        removeLife();
+        removeLife(); // Call backend to remove one life
     }
     banner.classList.add('show');
 }
 
-// New function to handle the API call and UI update
+// --- Lives Logic ---
 function removeLife() {
     fetch('/decrement_life', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Add losing life animation
             const livesDisplay = document.querySelector('.lives-display');
             livesDisplay.classList.add('losing-life');
             
-            // Update the lives count with a slight delay for drama
             setTimeout(() => {
                 const livesCountElement = document.getElementById('lives-count');
-                if (livesCountElement) {
-                    livesCountElement.innerText = data.new_lives;
-                }
+                if (livesCountElement) livesCountElement.innerText = data.new_lives;
                 
-                // Add low-lives warning state if 2 or fewer lives
                 if (data.new_lives <= 2 && data.new_lives > 0) {
                     livesDisplay.classList.add('low-lives');
                 } else {
@@ -77,33 +72,21 @@ function removeLife() {
                 }
             }, 200);
             
-            // Remove animation class after completion
-            setTimeout(() => {
-                livesDisplay.classList.remove('losing-life');
-            }, 800);
+            setTimeout(() => { livesDisplay.classList.remove('losing-life'); }, 800);
 
-            // Check if the user is out of lives
             if (data.new_lives <= 0) {
-                setTimeout(() => {
-                    showOutOfLivesModal();
-                }, 900);
+                setTimeout(() => { showOutOfLivesModal(); }, 900);
             }
-        } else {
-            console.error('Failed to decrement life:', data.error);
         }
     })
     .catch(error => console.error('Error:', error));
 }
 
-// Show out of lives modal
 function showOutOfLivesModal() {
     const modal = document.getElementById('out-of-lives-modal');
     modal.classList.add('show');
-    
-    // Disable all quiz interactions
     const options = document.querySelectorAll('.option-button');
     options.forEach(opt => opt.disabled = true);
-    // Also hide the main quiz card content to prevent interaction
     document.getElementById('question').style.display = 'none';
     document.getElementById('choices').style.display = 'none';
 }
@@ -112,9 +95,42 @@ function hideFeedbackBanner() {
     document.getElementById('feedback-banner').classList.remove('show');
 }
 
-// --- Load Next Question ---
-async function loadQuestion() {
-    if (questionsAsked >= TOTAL_QUESTIONS) {
+// --- Initialization: Fetch all questions for this specific level ---
+async function initializeQuiz() {
+    const quizCardElement = document.querySelector('.quiz-card');
+    const lessonKey = quizCardElement ? quizCardElement.dataset.lessonKey : null;
+    
+    if (!lessonKey || lessonKey === 'KEY_NOT_FOUND') {
+        document.getElementById('question').innerText = 'Error: Lesson Key not found in HTML.';
+        return;
+    }
+
+    try {
+        showLoadingState(true);
+        // Ping our new database API to get the exact questions for this level!
+        const res = await fetch(`/api/lessons/${lessonKey}/questions`);
+        if (!res.ok) throw new Error('Failed to fetch questions from database');
+        
+        currentLessonQuestions = await res.json();
+        
+        if (currentLessonQuestions.length === 0) {
+            document.getElementById('question').innerText = 'No questions available for this level.';
+            showLoadingState(false);
+            return;
+        }
+
+        // Start the quiz!
+        loadQuestion(); 
+    } catch (error) {
+        console.error(error);
+        document.getElementById('question').innerText = 'Failed to load curriculum data.';
+        showLoadingState(false);
+    }
+}
+
+// --- Load Next Question from Array ---
+function loadQuestion() {
+    if (currentQuestionIndex >= currentLessonQuestions.length) {
         const quizCardElement = document.querySelector('.quiz-card');
         const lessonKey = quizCardElement ? quizCardElement.dataset.lessonKey : null;
         quizCompleted(lessonKey);
@@ -124,36 +140,32 @@ async function loadQuestion() {
     showLoadingState(true);
     hideFeedbackBanner();
 
-    try {
-        const res = await fetch('/get-question');
-        if (!res.ok) throw new Error(`Failed to fetch question. Status: ${res.status}`);
-        const data = await res.json();
+    const qData = currentLessonQuestions[currentQuestionIndex];
+    correctAnswer = qData.answer;
+    document.getElementById('question').innerText = qData.prompt;
 
-        correctAnswer = data.answer;
-        document.getElementById('question').innerText = data.question;
-
-        const signImage = document.getElementById('sign-image');
+    const signImage = document.getElementById('sign-image');
+    if (signImage) {
         signImage.onload = () => showLoadingState(false);
-        signImage.src = data.image || '/static/placeholder.png';
-
-        const choicesDiv = document.getElementById('choices');
-        choicesDiv.innerHTML = '';
-        data.choices.forEach(choice => {
-            const btn = document.createElement('button');
-            btn.className = 'option-button';
-            btn.innerText = choice;
-            btn.onclick = () => checkAnswer(choice, btn);
-            choicesDiv.appendChild(btn);
-        });
-
-        questionsAsked++;
-        updateProgress();
-
-    } catch (error) {
-        console.error("Error in loadQuestion:", error);
-        document.getElementById('question').innerText = 'Could not load question. Please try refreshing.';
+        signImage.onerror = () => showLoadingState(false); // Failsafe if image doesn't load
+        // Pull the image from the static folder using the path from the database
+        signImage.src = qData.image ? `/static/${qData.image}` : '/static/Assets/logo.png';
+    } else {
         showLoadingState(false);
     }
+
+    const choicesDiv = document.getElementById('choices');
+    choicesDiv.innerHTML = '';
+    
+    qData.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'option-button';
+        btn.innerText = choice;
+        btn.onclick = () => checkAnswer(choice, btn);
+        choicesDiv.appendChild(btn);
+    });
+
+    updateProgress();
 }
 
 // --- Check Answer ---
@@ -162,17 +174,17 @@ async function checkAnswer(selected, buttonElement) {
     options.forEach(opt => opt.disabled = true);
 
     try {
-        const res = await fetch('/check-answer', {
+        // Still ping the backend so the user is awarded their XP points
+        await fetch('/check-answer', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ selected: selected, correct: correctAnswer })
         });
-        if (!res.ok) throw new Error('Failed to check answer.');
+        
+        const isCorrect = (selected === correctAnswer);
+        showFeedbackBanner(isCorrect, correctAnswer);
 
-        const result = await res.json();
-        showFeedbackBanner(result.result, correctAnswer);
-
-        if (result.result) {
+        if (isCorrect) {
             correctAnswersCount++;
             buttonElement.style.background = 'var(--correct-bg)';
             buttonElement.style.borderColor = 'var(--correct-text)';
@@ -189,7 +201,12 @@ async function checkAnswer(selected, buttonElement) {
             });
         }
 
-        setTimeout(loadQuestion, 2000);
+        currentQuestionIndex++; // Advance the tracker
+
+        setTimeout(() => {
+            loadQuestion(); // Load the next question directly
+        }, 2000);
+        
     } catch (error) {
         console.error("Error in checkAnswer:", error);
         alert('Could not check answer due to a network error.');
@@ -199,38 +216,30 @@ async function checkAnswer(selected, buttonElement) {
 
 // --- Progress Bar ---
 function updateProgress() {
-    const percent = (questionsAsked / TOTAL_QUESTIONS) * 100;
+    const total = currentLessonQuestions.length || 1;
+    const percent = (currentQuestionIndex / total) * 100;
     document.getElementById('progress-bar').style.width = percent + '%';
 }
 
 // --- Quiz Completion ---
 async function quizCompleted(lessonKeyForThisQuiz) {
-    // Hide visuals
     document.querySelector('.quiz-visual-area').style.display = 'none';
     document.getElementById('question').innerText = 'Quiz Complete!';
     document.getElementById('question').classList.add('quiz-complete-title');
+    document.getElementById('choices').style.display = 'none';
 
-    // Calculate performance
+    const total = currentLessonQuestions.length || 1;
     const xpGained = correctAnswersCount * 10;
-    const accuracy = (correctAnswersCount / TOTAL_QUESTIONS) * 100;
+    const accuracy = (correctAnswersCount / total) * 100;
 
-    // --- Save results for summary ---
     try {
         await fetch('/save-session-results', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                type: 'game',
-                xp: xpGained,
-                accuracy: accuracy,
-                skipped: false
-            })
+            body: JSON.stringify({ type: 'game', xp: xpGained, accuracy: accuracy, skipped: false })
         });
-    } catch (error) {
-        console.error('Failed to save game results:', error);
-    }
+    } catch (error) { console.error('Failed to save game results:', error); }
 
-    // --- Mark lesson complete ---
     if (lessonKeyForThisQuiz && lessonKeyForThisQuiz !== 'KEY_NOT_FOUND') {
         try {
             await fetch('/mark-lesson-status', {
@@ -238,31 +247,26 @@ async function quizCompleted(lessonKeyForThisQuiz) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ lesson_key: lessonKeyForThisQuiz, status: 'completed' })
             });
-        } catch (err) {
-            console.error('Error marking lesson complete:', err);
-        }
+        } catch (err) { console.error('Error marking lesson complete:', err); }
     }
 
-    // --- Redirect immediately to ML practice ---
-    window.location.href = '/ml_game';
+    // Move to next step (ML Practice)
+    window.location.href = '/ml-game';
 }
-
 
 // --- Event Setup ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Check initial lives when the page loads
     const livesCountElement = document.getElementById('lives-count');
     if (livesCountElement) {
         const initialLives = parseInt(livesCountElement.innerText, 10);
         if (initialLives <= 0) {
-            // If out of lives, show modal and stop everything else
             showOutOfLivesModal();
             return; 
         }
     }
 
-    // If the user has lives, proceed to load the first question
-    loadQuestion();
+    // Call the new initialization function!
+    initializeQuiz();
 
     // Setup for Skip Modal
     const skipButton = document.getElementById('skip-button');
@@ -271,37 +275,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmSkip = document.getElementById('confirm-skip');
 
     if (skipButton && skipModal && cancelSkip && confirmSkip) {
-        skipButton.addEventListener('click', () => {
-            skipModal.classList.add('show');
-        });
-
-        cancelSkip.addEventListener('click', () => {
-            skipModal.classList.remove('show');
-        });
+        skipButton.addEventListener('click', () => { skipModal.classList.add('show'); });
+        cancelSkip.addEventListener('click', () => { skipModal.classList.remove('show'); });
 
         confirmSkip.addEventListener('click', async () => {
             try {
                 await fetch('/save-session-results', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        type: 'game',
-                        xp: 0,
-                        accuracy: 0,
-                        skipped: true
-                    })
+                    body: JSON.stringify({ type: 'game', xp: 0, accuracy: 0, skipped: true })
                 });
-            } catch (error) {
-                console.error('Failed to mark game as skipped:', error);
-            }
-            window.location.href = '/ml_game';
+            } catch (error) { console.error('Failed to mark game as skipped:', error); }
+            window.location.href = '/ml-game';
         });
 
-        // Close modal when clicking outside
         skipModal.addEventListener('click', (e) => {
-            if (e.target === skipModal) {
-                skipModal.classList.remove('show');
-            }
+            if (e.target === skipModal) skipModal.classList.remove('show');
         });
     }
 });

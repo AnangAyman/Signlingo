@@ -11,27 +11,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/global_style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/game_style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Assets/logo.png') }}">
 </head>
 <body>
     <button class="back-button" onclick="window.location.href='/dashboard'">
-        <svg width="24" height="24" viewBox="0 0 24" fill="none">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </button>
 
-    <div class="lives-display">
-        <i class="fas fa-heart"></i>
-        <span id="lives-count">{{user.lives}}</span>
+    <div class="top-right-stats">
+        <div class="xp-display" id="xp-badge">
+            <i class="fas fa-bolt" style="color: #FFA500;"></i>
+            <span id="xp-count">0 XP</span>
+        </div>
+        <div class="lives-display">
+            <i class="fas fa-heart" style="color: #ff4b4b;"></i>
+            <span id="lives-count">{{user.lives}}</span>
+        </div>
     </div>
     
     <div class="game-page-wrapper">
-        {% set current_lesson = lessons|selectattr('url', 'equalto', request.path)|first %}
-        <div class="quiz-card" data-lesson-key="{{ current_lesson.lesson_key if current_lesson else 'KEY_NOT_FOUND' }}">
-            
+        <div class="quiz-card" data-lesson-key="{{ active_step.step_key if active_step else 'KEY_NOT_FOUND' }}">
             <div class="game-header">
                 <div class="header-text">
                     <span class="module-badge">Practice</span>
-                    <h1>{{ current_lesson.title if current_lesson else "Practice" }}</h1>
+                    <h1>{{ active_step.lesson.title if active_step else "Practice" }}</h1>
                 </div>
                 <div class="progress-info">
                     <span class="progress-label">Module Progress</span>
@@ -117,6 +122,7 @@
             </div>
         </div>
     </div>
+    
 
     <script src="{{ url_for('static', filename='js/game_logic.js') }}"></script>
 </body>

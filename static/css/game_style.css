@@ -418,81 +418,98 @@ body {
 }
 
 /* ============================================= */
-/* Lives Display (Top Right Corner)             */
+/* Top Right Corner Stats Container              */
 /* ============================================= */
-.lives-display {
+.top-right-stats {
     position: fixed;
     top: 24px;
     right: 24px;
     display: flex;
     align-items: center;
-    gap: var(--space-s);
-    background: linear-gradient(135deg, var(--secondary), #FF8A80);
-    padding: 12px 20px;
+    gap: 12px;
+    z-index: 100;
+}
+
+/* XP Display Badge */
+.xp-display, .lives-display {
+    background: var(--white);
+    padding: 10px 18px;
     border-radius: 24px;
-    box-shadow: 0 4px 16px rgba(255, 111, 97, 0.3);
-    z-index: 20;
-    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--neutral-dark);
+    transition: transform 0.3s ease;
 }
 
-.lives-display:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 111, 97, 0.4);
+.xp-display i {
+    font-size: 20px;
 }
 
+/* Lives Display Badge */
 .lives-display i {
     color: var(--white);
-    font-size: 22px;
-    animation: heartbeat 1.5s ease-in-out infinite;
+    font-size: 20px;
 }
 
 .lives-display span {
-    color: var(--white);
     font-family: 'Poppins', sans-serif;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
-    min-width: 24px;
+    min-width: 20px;
     text-align: center;
 }
 
-/* Heart animation when lives decrease */
-@keyframes heartbeat {
-    0%, 100% { transform: scale(1); }
-    10%, 30% { transform: scale(0.9); }
-    20%, 40% { transform: scale(1.1); }
-}
+/* Animations for Lives */
 
 @keyframes loseLife {
-    0% { transform: scale(1) rotate(0deg); }
-    15% { transform: scale(1.4) rotate(-15deg); }
-    30% { transform: scale(0.7) rotate(15deg); }
-    45% { transform: scale(1.3) rotate(-10deg); }
-    60% { transform: scale(0.8) rotate(10deg); }
-    75% { transform: scale(1.2) rotate(-5deg); }
-    90% { transform: scale(0.9) rotate(5deg); }
-    100% { transform: scale(1) rotate(0deg); }
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+}
+
+@keyframes heartDim {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
 }
 
 .lives-display.losing-life {
-    animation: loseLife 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: loseLife 0.4s ease-in-out;
 }
 
 .lives-display.losing-life i {
-    animation: loseLife 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: heartDim 0.4s ease-in-out;
 }
 
-/* Low lives warning state */
 .lives-display.low-lives {
     background: linear-gradient(135deg, #EF4444, #DC2626);
     animation: urgentPulse 1s ease-in-out infinite;
 }
 
 @keyframes urgentPulse {
-    0%, 100% { 
-        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+    0%, 100% { box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 4px 24px rgba(239, 68, 68, 0.7); }
+}
+
+/* Responsive adjustments for top-right stats */
+@media (max-width: 768px) {
+    .top-right-stats {
+        top: 16px;
+        right: 16px;
+        gap: 8px;
     }
-    50% { 
-        box-shadow: 0 4px 24px rgba(239, 68, 68, 0.7);
+    .xp-display, .lives-display {
+        padding: 8px 14px;
+    }
+    .xp-display span, .lives-display span {
+        font-size: 16px;
+    }
+    .xp-display i, .lives-display i {
+        font-size: 18px;
     }
 }
 

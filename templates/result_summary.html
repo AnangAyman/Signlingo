@@ -12,13 +12,13 @@
 </head>
 <body>
 
-    <button class="back-button" onclick="window.location.href='{{ url_for('auth.dashboard') }}'">
+    <a href="{{ url_for('auth.dashboard') }}" class="back-button" style="text-decoration: none; display: flex;">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path d="M19 12H5M5 12L12 19M5 12L12 5" 
                   stroke="currentColor" stroke-width="2" 
                   stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-    </button>
+    </a>
 
     <div class="summary-wrapper">
         <div class="summary-card">
@@ -30,12 +30,12 @@
             </div>
 
             <div class="actions">
-                <button onclick="window.location.href='{{ url_for('auth.dashboard') }}'" class="dashboard-btn">
+                <a href="{{ url_for('auth.dashboard') }}" class="dashboard-btn" style="text-decoration: none; display: inline-block; text-align: center;">
                     <i class="fa-solid fa-house"></i> Back to Dashboard
-                </button>
-                <button onclick="window.location.href='{{ url_for('auth.dashboard') }}'" class="retry-btn">
-                    <i class="fa-solid fa-arrow-right"></i> Next Lesson
-                </button>
+                </a>
+                <a href="{{ url_for('auth.magic_touch') }}" class="retry-btn" style="text-decoration: none; display: inline-block; text-align: center;">
+                    <i class="fa-solid fa-arrow-right"></i> Next: Magic Touch
+                </a>
             </div>
         </div>
     </div>

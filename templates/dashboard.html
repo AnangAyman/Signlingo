@@ -97,86 +97,61 @@
 
             <div class="row g-4">
                 <div class="col-lg-8">
+                    
+                    {% if completed_lessons_count > 0 %}
                     <div class="hero-card mb-4">
                         <div class="hero-content">
-                            <span class="hero-label">Let's start</span>
+                            <span class="hero-label">Keep going</span>
                             <h2 class="section-title">Bisindo Letters</h2>
-                            <p class="body-large">Test your skills in Bisindo Letters, where you'll learn to express written communication effectively using Bahasa Isyarat Indonesia (Indonesian Sign Language).</p>
-                            <button class="btn-primary" onclick="window.location.href='/video_learning'">
+                            <p class="body-large">You're making great progress! Continue mastering the Indonesian Sign Language alphabet.</p>
+                            <button class="btn-primary" onclick="window.location.href='{{ url_for('auth.play_continue') }}'">
                                 Resume Learning
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                     </div>
-
-                    <!-- <div class="stats-grid mb-4">
-                        <div class="stat-card">
-                            <div class="stat-number">0%</div>
-                            <div class="stat-label">Average Score</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">Completed Lessons</div>
-                        </div>
-                    </div> -->
+                    {% endif %}
 
                     <div class="section-header">
                         <h3 class="subheading">All modules</h3>
                     </div>
 
-                    <div class="module-card">
+                    {% for mod in dynamic_modules %}
+                    <div class="module-card {% if not mod.is_unlocked %}locked-module{% endif %}" style="{% if not mod.is_unlocked %}opacity: 0.6;{% endif %}">
                         <div class="module-header">
                             <div>
-                                <span class="module-badge">MODULE</span>
-                                <h3 class="subheading mt-2">Module 1</h3>
+                                <span class="module-badge">MODULE {{ loop.index }}</span>
+                                <h3 class="subheading mt-2">{{ mod.title }}</h3>
                             </div>
-                            <button class="icon-button icon-button-primary" onclick="window.location.href='/roadmap'">
-                                <i class="fas fa-play"></i>
+                            
+                            <button class="icon-button icon-button-primary" 
+                                    onclick="window.location.href='{{ url_for('auth.play_module', module_id=mod.id) }}'"
+                                    {% if not mod.is_unlocked or mod.total_lessons == 0 %}disabled style="background: var(--neutral); color: var(--neutral-dark); cursor: not-allowed;"{% endif %}>
+                                {% if mod.is_unlocked %}
+                                    <i class="fas fa-play"></i>
+                                {% else %}
+                                    <i class="fas fa-lock"></i>
+                                {% endif %}
                             </button>
                         </div>
+                        
                         <div class="progress-container">
-                            <div class="progress-bar" style="width: 0%"></div>
+                            <div class="progress-bar" style="width: {{ mod.progress }}%"></div>
                         </div>
+                        
                         <div class="module-footer">
-                            <span class="caption">0% practiced</span>
+                            <span class="caption">{{ mod.progress|round|int }}% practiced</span>
+                            
+                            {% if not mod.is_unlocked %}
+                                <span class="caption" style="color: #F44336; font-weight: 500;">
+                                    <i class="fas fa-lock"></i> Complete previous module to unlock
+                                </span>
+                            {% elif mod.total_lessons == 0 %}
+                                <span class="caption text-muted">Coming Soon</span>
+                            {% endif %}
                         </div>
                     </div>
-
-                    <div class="module-card locked">
-                        <div class="module-header">
-                            <div>
-                                <span class="module-badge">MODULE</span>
-                                <h3 class="subheading mt-2">Module 2</h3>
-                            </div>
-                            <button class="icon-button icon-button-primary">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="module-footer">
-                            <span class="caption">0% practiced</span>
-                        </div>
-                    </div>
-
-                    <div class="module-card locked">
-                        <div class="module-header">
-                            <div>
-                                <span class="module-badge">MODULE</span>
-                                <h3 class="subheading mt-2">Module 3</h3>
-                            </div>
-                            <button class="icon-button icon-button-primary" onclick="window.location.href='/roadmap'">
-                                <i class="fas fa-play"></i>
-                            </button>
-                        </div>
-                        <div class="progress-container">
-                            <div class="progress-bar" style="width: 0%"></div>
-                        </div>
-                        <div class="module-footer">
-                            <span class="caption">0% practiced</span>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
 
                 <div class="col-lg-4">

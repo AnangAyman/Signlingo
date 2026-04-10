@@ -26,9 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your application's code
 COPY . .
 
-# --- NEW CHANGES ---
-# Run the database reset command ONLY during the image build process.
-RUN flask init-app
+
 
 # Expose the port that the app runs on
 EXPOSE 5000

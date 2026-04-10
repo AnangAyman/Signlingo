@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignLingo - Magic Touch Mode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global_style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/magic_touch.css') }}">
+</head>
+<body>
+
+    <a class="back-button" href="{{ url_for('auth.dashboard') }}">
+        <svg width="24" height="24" viewBox="0 0 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+    
+    <div class="game-page-wrapper">
+        <div class="game-container" id="game-container">
+            
+            <div class="menu-screen" id="start-screen">
+                <div class="menu-content">
+                    <div class="module-badge mb-3">Minigame</div>
+                    <h1>Magic Touch</h1>
+                    <p>Enemies are falling! Sign the letters to pop their balloons before they reach the ground.</p>
+                    <button class="primary-button mt-2" id="start-game-btn">Play Now</button>
+                </div>
+            </div>
+            
+            <div class="menu-screen" id="game-over-screen" style="display: none;">
+                <div class="menu-content">
+                    <h1>Game Over</h1>
+                    <p class="final-score-text">Final Score: <span id="final-score">0</span></p>
+                    <div class="d-flex flex-column gap-3 align-items-center mt-4">
+                        <button class="primary-button w-100" id="restart-game-btn">Play Again</button>
+                        <button class="secondary-button w-100" onclick="window.location.href='{{ url_for('auth.dashboard') }}'">Return to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-ui-header">
+                <div class="score-container">
+                    <span class="score-label">SCORE</span>
+                    <span id="score-value">0</span>
+                </div>
+                <div class="lives-container" id="lives-container">
+                    <i class="fa-solid fa-heart life-icon"></i>
+                    <i class="fa-solid fa-heart life-icon"></i>
+                    <i class="fa-solid fa-heart life-icon"></i>
+                    <i class="fa-solid fa-heart life-icon"></i>
+                    <i class="fa-solid fa-heart life-icon"></i>
+                </div>
+            </div>
+
+            <div class="game-area" id="game-area">
+                </div>
+
+            <div class="webcam-container">
+                <video id="webcam" autoplay playsinline muted></video>
+            </div>
+            
+            <div class="prediction-badge" id="current-prediction">-</div>
+            
+            <canvas id="canvas" width="224" height="224" style="display:none;"></canvas>
+
+        </div>
+    </div>
+
+    <audio id="pop-sound" src="{{ url_for('static', filename='sounds/correct.mp3') }}" preload="auto"></audio>
+    <audio id="hurt-sound" src="{{ url_for('static', filename='sounds/incorrect.mp3') }}" preload="auto"></audio>
+
+    <script src="{{ url_for('static', filename='js/magic_touch.js') }}"></script>
+</body>
+</html>

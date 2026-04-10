@@ -1,0 +1,456 @@
+/* magic_touch.css */
+body {
+    overflow: hidden; 
+}
+
+.game-page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: var(--space-l);
+    box-sizing: border-box;
+}
+
+.game-container {
+    width: 100%;
+    max-width: 800px; /* Constrained width is crucial for webcam tracking */
+    height: 80vh;
+    min-height: 600px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Match the global back button style */
+.back-button {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: var(--white);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease, color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    color: var(--neutral-dark);
+}
+
+.back-button:hover {
+    background-color: var(--primary);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 194, 203, 0.3);
+    color: var(--white);
+}
+
+/* Menu Screens (Start & Game Over) */
+.menu-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--white); /* Solid white instead of transparent */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.menu-content {
+    text-align: center;
+    max-width: 450px;
+    padding: var(--space-xl);
+}
+
+.menu-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-m);
+    color: var(--neutral-dark);
+}
+
+.menu-content p {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-xl);
+    color: #6B7280;
+    line-height: 1.6;
+}
+
+.final-score-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem !important;
+    color: var(--primary) !important;
+}
+
+/* UI Header */
+.game-ui-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-m) var(--space-xl);
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
+    z-index: 10;
+}
+
+.score-container {
+    font-size: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--neutral-dark);
+}
+
+.score-label {
+    font-size: 0.9rem;
+    color: #6B7280;
+    margin-right: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.lives-container {
+    font-size: 1.5rem;
+    color: var(--secondary);
+    display: flex;
+    gap: 10px;
+}
+
+.lives-container.pulse .life-icon:last-child {
+    animation: heart-pulse 0.3s ease-out;
+}
+
+@keyframes heart-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+/* Buttons */
+.primary-button {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 14px 40px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 194, 203, 0.2);
+}
+
+.primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 194, 203, 0.3);
+    background: #00A8B3;
+}
+
+.secondary-button {
+    background: var(--white);
+    color: var(--neutral-dark);
+    border: 2px solid var(--border);
+    padding: 12px 40px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+    background: var(--neutral-light);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.module-badge {
+    display: inline-block;
+    background-color: var(--neutral-light);
+    color: var(--primary);
+    padding: 8px var(--space-m);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Game Area */
+.game-area {
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+    background-color: #F3F4F6;
+}
+
+/* Webcam Container */
+.webcam-container {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    width: 140px;
+    height: 140px;
+    border-radius: 16px; 
+    overflow: hidden;
+    border: 3px solid var(--primary);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    z-index: 20;
+    background: var(--neutral-dark);
+}
+
+.webcam-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); 
+}
+
+/* Live Prediction Badge */
+.prediction-badge {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--white);
+    color: var(--neutral-dark);
+    padding: 10px 32px;
+    border-radius: 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border: 3px solid var(--border);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    z-index: 20;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-width: 120px;
+}
+
+.prediction-badge.confident {
+    background: var(--accent);
+    color: var(--neutral-dark);
+    border-color: var(--accent);
+    box-shadow: 0 6px 16px rgba(166, 226, 46, 0.4);
+    transform: translateX(-50%) scale(1.05); 
+}
+
+/* Enemies */
+.enemy {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    will-change: transform;
+}
+
+.enemy-character {
+    width: 46px;
+    height: 42px;
+    background: var(--neutral-dark);
+    border-radius: 50% 50% 30% 30% / 60% 60% 40% 40%;
+    position: relative;
+    margin-top: -6px; 
+    box-shadow: inset -4px -6px 10px rgba(0,0,0,0.3), 0 6px 12px rgba(0,0,0,0.15);
+    animation: float-character 2s ease-in-out infinite;
+    z-index: 2;
+}
+
+.enemy-character::before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 8px;
+    width: 6px; height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 18px 0 0 #fff; 
+}
+
+.boss .enemy-character {
+    width: 64px;
+    height: 60px;
+    background: var(--primary);
+    box-shadow: inset -6px -8px 12px rgba(0,0,0,0.2), 0 0 20px rgba(0, 194, 203, 0.6);
+    border-radius: 50% 50% 25% 25% / 60% 60% 40% 40%;
+}
+
+.boss .enemy-character::before {
+    top: 15px; left: 15px;
+    box-shadow: 24px 0 0 #fff;
+}
+
+/* Balloons */
+.balloon-container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin: 0;
+    z-index: 1; 
+}
+
+.balloon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: bottom center; 
+    transition: transform 0.2s ease;
+}
+
+.balloon {
+    width: 38px;
+    height: 48px;
+    background: radial-gradient(circle at 30% 30%, var(--secondary), #E05244);
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--white);
+    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.15);
+    transition: transform 0.1s;
+    margin: 0;
+}
+
+.balloon:nth-child(2n) { background: radial-gradient(circle at 30% 30%, var(--primary), #00A8B3); }
+.balloon:nth-child(3n) { background: radial-gradient(circle at 30% 30%, var(--gold), #E6C200); color: var(--neutral-dark); }
+.balloon:nth-child(4n) { background: radial-gradient(circle at 30% 30%, var(--accent), #8CBE26); color: var(--neutral-dark); }
+
+.string {
+    width: 2px;
+    height: 24px; /* Slightly longer string */
+    background: #9CA3AF; 
+    margin: 0; 
+    z-index: 1;
+}
+
+/* Popping Animation & Particle Explosion */
+@keyframes pop {
+    0%   { transform: scale(1); opacity: 1; }
+    30%  { transform: scale(1.4); opacity: 1; filter: brightness(1.2); }
+    100% { transform: scale(2.2); opacity: 0; filter: brightness(2); }
+}
+
+.balloon.popping {
+    animation: pop 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+.balloon.popping::before {
+    content: '';
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    width: 6px; 
+    height: 6px;
+    background: transparent;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: explode 0.2s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes explode {
+    0%, 30% {
+        box-shadow: 
+            0 0 0 transparent, 0 0 0 transparent, 
+            0 0 0 transparent, 0 0 0 transparent,
+            0 0 0 transparent, 0 0 0 transparent,
+            0 0 0 transparent, 0 0 0 transparent;
+    }
+    100% {
+        box-shadow: 
+            -30px -30px 0 var(--white),  30px -30px 0 var(--gold), 
+            -30px  30px 0 var(--accent), 30px  30px 0 var(--secondary),
+              0px -45px 0 var(--primary),   0px  45px 0 var(--white),
+            -45px   0px 0 var(--secondary),45px   0px 0 var(--accent);
+    }
+}
+.balloon.popping::after {
+    content: '';
+    position: absolute;
+    top: 50%; 
+    left: 50%;
+    bottom: auto !important;
+    width: 100%; 
+    height: 100%;
+    transform: translate(-50%, -50%);
+    
+    border-top: 4px solid rgba(255, 255, 255, 0.8) !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.8) !important;
+    border-right: 4px solid rgba(255, 255, 255, 0.8) !important;
+    border-bottom: 4px solid rgba(255, 255, 255, 0.8) !important;
+    border-radius: 50% !important;
+    
+    background: transparent;
+    animation: shockwave 0.2s ease-out forwards;
+}
+
+@keyframes shockwave {
+    0%, 30% {
+        width: 100%; 
+        height: 100%;
+        border-width: 4px !important;
+        opacity: 1;
+    }
+    100% {
+        width: 250%; 
+        height: 250%;
+        border-width: 0px !important;
+        opacity: 0;
+    }
+}
+
+.enemy.falling {
+    animation: defeat-spin 0.4s ease-in forwards;
+    pointer-events: none; 
+}
+
+.enemy.falling .enemy-character {
+    animation: none;
+}
+
+@keyframes defeat-spin {
+    0% { 
+        transform: scale(1) rotate(0deg); 
+        opacity: 1; 
+    }
+    100% { 
+        transform: scale(0.3) rotate(180deg); 
+        opacity: 0; 
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .back-button {
+        top: 16px;
+        left: 16px;
+        width: 40px;
+        height: 40px;
+    }
+    .game-ui-header {
+        padding: var(--space-m);
+    }
+    .webcam-container {
+        width: 100px;
+        height: 100px;
+        bottom: 16px;
+        right: 16px;
+    }
+    .prediction-badge {
+        font-size: 1.2rem;
+        padding: 8px 24px;
+        bottom: 16px;
+    }
+}

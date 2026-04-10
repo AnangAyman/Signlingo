@@ -99,32 +99,35 @@
                     </div>
 
                     <div class="roadmap-path">
-                        <div class="lesson-node current">
-                            <button class="lesson-button" onclick="window.location.href='/video_learning'">
-                                <i class="fas fa-star"></i>
-                            </button>
-                        </div>
+                        {% set current_found = false %}
+                        
+                        {% for lesson in lessons %}
+                            {% if lesson.status == 'completed' %}
+                                <div class="lesson-node completed">
+                                    <button class="lesson-button" onclick="window.location.href='{{ lesson.url }}'">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                                
+                            {% elif not current_found %}
+                                {% set current_found = true %}
+                                <div class="lesson-node current">
+                                    <button class="lesson-button" onclick="window.location.href='{{ lesson.url }}'">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                </div>
+                                
+                            {% else %}
+                                <div class="lesson-node locked">
+                                    <button class="lesson-button" disabled>
+                                        <i class="fas fa-lock"></i>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
 
-                        <div class="lesson-node locked">
-                            <button class="lesson-button">
-                                <i class="fas fa-lock"></i>
-                            </button>
-                        </div>
-
-                        <div class="lesson-node locked">
-                            <button class="lesson-button">
-                                <i class="fas fa-lock"></i>
-                            </button>
-                        </div>
-
-                        <div class="lesson-node locked">
-                            <button class="lesson-button">
-                                <i class="fas fa-lock"></i>
-                            </button>
-                        </div>
-
-                        <div class="lesson-node treasure">
-                            <button class="lesson-button">
+                        <div class="lesson-node treasure {% if module_progress_percent == 100 %}completed{% else %}locked{% endif %}">
+                            <button class="lesson-button" {% if module_progress_percent != 100 %}disabled{% endif %}>
                                 <i class="fas fa-trophy"></i>
                             </button>
                         </div>

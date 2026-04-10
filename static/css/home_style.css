@@ -288,20 +288,25 @@
     transition: all 0.3s ease;
 }
 
-.icon-button:hover {
-    background: var(--primary);
-    color: var(--white);
-    transform: scale(1.05);
-}
-
 .icon-button-primary {
     background: linear-gradient(135deg, var(--primary), #00A8B0);
     color: var(--white);
 }
 
-.icon-button-primary:hover {
-    transform: scale(1.05) rotate(90deg);
+.icon-button-primary:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
 }
+
+.icon-button-primary i {
+    transition: transform 0.3s ease;
+}
+
+.icon-button-primary:hover:not(:disabled) i {
+    transform: scale(1.1);
+}
+
 
 /* Summary Card */
 .summary-card {

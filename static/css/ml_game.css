@@ -42,6 +42,27 @@ body {
     box-shadow: 0 4px 12px rgba(0, 194, 203, 0.3); color: var(--white);
 }
 
+/* Top Right Stats */
+.top-right-stats {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    z-index: 100;
+}
+
+.xp-display {
+    background: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
 /* ============================================= */
 /* Quiz Card & Header (From game_style.css)      */
 /* ============================================= */
